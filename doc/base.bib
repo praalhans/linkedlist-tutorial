@@ -1,0 +1,497 @@
+%%% ====================================================================
+%%%  BibTeX-file{
+%%%     author          = "Gerry Murray",
+%%%     version         = "1.2",
+%%%     date            = "2 April 2012",
+%%%     filename        = "acmsmall-sample-bibfile.bib",
+%%%     address         = "ACM, NY",
+%%%     email           = "murray at hq.acm.org",
+%%%     codetable       = "ISO/ASCII",
+%%%     keywords        = "ACM Reference Format, bibliography, cFKeYitation, references",
+%%%     supported       = "yes",
+%%%     docstring       = "This BibTeX database file contains 'bibdata' entries
+%%%                        that 'match' the examples provided in the Specifications Document
+%%%                        AND, also, 'legacy'-type bibs. It should assist authors in
+%%%                        choosing the 'correct' at-bibtype and necessary bib-fields
+%%%                        so as to obtain the appropriate ACM Reference Format output.
+%%%                        It also contains many 'Standard Abbreviations'. "
+%%%  }
+%%% ====================================================================
+
+% Journals
+
+% First the Full Name is given, then the abbreviation used in the AMS Math
+% Reviews, with an indication if it could not be found there.
+% Note the 2nd overwrites the 1st, so swap them if you want the full name.
+
+ %{AMS}
+ @String{AMSTrans = "American Mathematical Society Translations" }
+ @String{AMSTrans = "Amer. Math. Soc. Transl." }
+ @String{BullAMS = "Bulletin of the American Mathematical Society" }
+ @String{BullAMS = "Bull. Amer. Math. Soc." }
+ @String{ProcAMS = "Proceedings of the American Mathematical Society" }
+ @String{ProcAMS = "Proc. Amer. Math. Soc." }
+ @String{TransAMS = "Transactions of the American Mathematical Society" }
+ @String{TransAMS = "Trans. Amer. Math. Soc." }
+
+ %ACM
+ @String{CACM = "Communications of the {ACM}" }
+ @String{CACM = "Commun. {ACM}" }
+ @String{CompServ = "Comput. Surveys" }
+ @String{JACM = "J. ACM" }
+ @String{ACMMathSoft = "{ACM} Transactions on Mathematical Software" }
+ @String{ACMMathSoft = "{ACM} Trans. Math. Software" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newsletter" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newslett." }
+
+ @String{AmerSocio = "American Journal of Sociology" }
+ @String{AmerStatAssoc = "Journal of the American Statistical Association" }
+ @String{AmerStatAssoc = "J. Amer. Statist. Assoc." }
+ @String{ApplMathComp = "Applied Mathematics and Computation" }
+ @String{ApplMathComp = "Appl. Math. Comput." }
+ @String{AmerMathMonthly = "American Mathematical Monthly" }
+ @String{AmerMathMonthly = "Amer. Math. Monthly" }
+ @String{BIT = "{BIT}" }
+ @String{BritStatPsych = "British Journal of Mathematical and Statistical
+          Psychology" }
+ @String{BritStatPsych = "Brit. J. Math. Statist. Psych." }
+ @String{CanMathBull = "Canadian Mathematical Bulletin" }
+ @String{CanMathBull = "Canad. Math. Bull." }
+ @String{CompApplMath = "Journal of Computational and Applied Mathematics" }
+ @String{CompApplMath = "J. Comput. Appl. Math." }
+ @String{CompPhys = "Journal of Computational Physics" }
+ @String{CompPhys = "J. Comput. Phys." }
+ @String{CompStruct = "Computers and Structures" }
+ @String{CompStruct = "Comput. \& Structures" }
+ @String{CompJour = "The Computer Journal" }
+ @String{CompJour = "Comput. J." }
+ @String{CompSysSci = "Journal of Computer and System Sciences" }
+ @String{CompSysSci = "J. Comput. System Sci." }
+ @String{Computing = "Computing" }
+ @String{ContempMath = "Contemporary Mathematics" }
+ @String{ContempMath = "Contemp. Math." }
+ @String{Crelle = "Crelle's Journal" }
+ @String{GiornaleMath = "Giornale di Mathematiche" }
+ @String{GiornaleMath = "Giorn. Mat." } % didn't find in AMS MR., ibid.
+
+ %IEEE
+ @String{Computer = "{IEEE} Computer" }
+ @String{IEEETransComp = "{IEEE} Transactions on Computers" }
+ @String{IEEETransComp = "{IEEE} Trans. Comput." }
+ @String{IEEETransAC = "{IEEE} Transactions on Automatic Control" }
+ @String{IEEETransAC = "{IEEE} Trans. Automat. Control" }
+ @String{IEEESpec = "{IEEE} Spectrum" } % didn't find in AMS MR
+ @String{ProcIEEE = "Proceedings of the {IEEE}" }
+ @String{ProcIEEE = "Proc. {IEEE}" } % didn't find in AMS MR
+ @String{IEEETransAeroElec = "{IEEE} Transactions on Aerospace and Electronic
+     Systems" }
+ @String{IEEETransAeroElec = "{IEEE} Trans. Aerospace Electron. Systems" }
+
+ @String{IMANumerAna = "{IMA} Journal of Numerical Analysis" }
+ @String{IMANumerAna = "{IMA} J. Numer. Anal." }
+ @String{InfProcLet = "Information Processing Letters" }
+ @String{InfProcLet = "Inform. Process. Lett." }
+ @String{InstMathApp = "Journal of the Institute of Mathematics and
+     its Applications" }
+ @String{InstMathApp = "J. Inst. Math. Appl." }
+ @String{IntControl = "International Journal of Control" }
+ @String{IntControl = "Internat. J. Control" }
+ @String{IntNumerEng = "International Journal for Numerical Methods in
+     Engineering" }
+ @String{IntNumerEng = "Internat. J. Numer. Methods Engrg." }
+ @String{IntSuper = "International Journal of Supercomputing Applications" }
+ @String{IntSuper = "Internat. J. Supercomputing Applic." } % didn't find
+%% in AMS MR
+ @String{Kibernetika = "Kibernetika" }
+ @String{JResNatBurStand = "Journal of Research of the National Bureau
+     of Standards" }
+ @String{JResNatBurStand = "J. Res. Nat. Bur. Standards" }
+ @String{LinAlgApp = "Linear Algebra and its Applications" }
+ @String{LinAlgApp = "Linear Algebra Appl." }
+ @String{MathAnaAppl = "Journal of Mathematical Analysis and Applications" }
+ @String{MathAnaAppl = "J. Math. Anal. Appl." }
+ @String{MathAnnalen = "Mathematische Annalen" }
+ @String{MathAnnalen = "Math. Ann." }
+ @String{MathPhys = "Journal of Mathematical Physics" }
+ @String{MathPhys = "J. Math. Phys." }
+ @String{MathComp = "Mathematics of Computation" }
+ @String{MathComp = "Math. Comp." }
+ @String{MathScand = "Mathematica Scandinavica" }
+ @String{MathScand = "Math. Scand." }
+ @String{TablesAidsComp = "Mathematical Tables and Other Aids to Computation" }
+ @String{TablesAidsComp = "Math. Tables Aids Comput." }
+ @String{NumerMath = "Numerische Mathematik" }
+ @String{NumerMath = "Numer. Math." }
+ @String{PacificMath = "Pacific Journal of Mathematics" }
+ @String{PacificMath = "Pacific J. Math." }
+ @String{ParDistComp = "Journal of Parallel and Distributed Computing" }
+ @String{ParDistComp = "J. Parallel and Distrib. Comput." } % didn't find
+%% in AMS MR
+ @String{ParComputing = "Parallel Computing" }
+ @String{ParComputing = "Parallel Comput." }
+ @String{PhilMag = "Philosophical Magazine" }
+ @String{PhilMag = "Philos. Mag." }
+ @String{ProcNAS = "Proceedings of the National Academy of Sciences
+                    of the USA" }
+ @String{ProcNAS = "Proc. Nat. Acad. Sci. U. S. A." }
+ @String{Psychometrika = "Psychometrika" }
+ @String{QuartMath = "Quarterly Journal of Mathematics, Oxford, Series (2)" }
+ @String{QuartMath = "Quart. J. Math. Oxford Ser. (2)" }
+ @String{QuartApplMath = "Quarterly of Applied Mathematics" }
+ @String{QuartApplMath = "Quart. Appl. Math." }
+ @String{RevueInstStat = "Review of the International Statisical Institute" }
+ @String{RevueInstStat = "Rev. Inst. Internat. Statist." }
+
+ %SIAM
+ @String{JSIAM = "Journal of the Society for Industrial and Applied
+     Mathematics" }
+ @String{JSIAM = "J. Soc. Indust. Appl. Math." }
+ @String{JSIAMB = "Journal of the Society for Industrial and Applied
+     Mathematics, Series B, Numerical Analysis" }
+ @String{JSIAMB = "J. Soc. Indust. Appl. Math. Ser. B Numer. Anal." }
+ @String{SIAMAlgMeth = "{SIAM} Journal on Algebraic and Discrete Methods" }
+ @String{SIAMAlgMeth = "{SIAM} J. Algebraic Discrete Methods" }
+ @String{SIAMAppMath = "{SIAM} Journal on Applied Mathematics" }
+ @String{SIAMAppMath = "{SIAM} J. Appl. Math." }
+ @String{SIAMComp = "{SIAM} Journal on Computing" }
+ @String{SIAMComp = "{SIAM} J. Comput." }
+ @String{SIAMMatrix = "{SIAM} Journal on Matrix Analysis and Applications" }
+ @String{SIAMMatrix = "{SIAM} J. Matrix Anal. Appl." }
+ @String{SIAMNumAnal = "{SIAM} Journal on Numerical Analysis" }
+ @String{SIAMNumAnal = "{SIAM} J. Numer. Anal." }
+ @String{SIAMReview = "{SIAM} Review" }
+ @String{SIAMReview = "{SIAM} Rev." }
+ @String{SIAMSciStat = "{SIAM} Journal on Scientific and Statistical
+     Computing" }
+ @String{SIAMSciStat = "{SIAM} J. Sci. Statist. Comput." }
+
+ @String{SoftPracExp = "Software Practice and Experience" }
+ @String{SoftPracExp = "Software Prac. Experience" } % didn't find in AMS MR
+ @String{StatScience = "Statistical Science" }
+ @String{StatScience = "Statist. Sci." }
+ @String{Techno = "Technometrics" }
+ @String{USSRCompMathPhys = "{USSR} Computational Mathematics and Mathematical
+     Physics" }
+ @String{USSRCompMathPhys = "{U. S. S. R.} Comput. Math. and Math. Phys." }
+ @String{VLSICompSys = "Journal of {VLSI} and Computer Systems" }
+ @String{VLSICompSys = "J. {VLSI} Comput. Syst." }
+ @String{ZAngewMathMech = "Zeitschrift fur Angewandte Mathematik und
+     Mechanik" }
+ @String{ZAngewMathMech = "Z. Angew. Math. Mech." }
+ @String{ZAngewMathPhys = "Zeitschrift fur Angewandte Mathematik und Physik" }
+ @String{ZAngewMathPhys = "Z. Angew. Math. Phys." }
+ 
+ %Springer
+ @String{LNCS = "Lecture Notes in Computer Science"}
+ @String{RACSAM = "Rev. R. Acad. Cien. Serie A. Mat."}
+ 
+
+% Publishers % ================================================= |
+
+ @String{Academic = "Academic Press" }
+ @String{ACMPress = "{ACM} Press" }
+ @String{AdamHilger = "Adam Hilger" }
+ @String{AddisonWesley = "Addison-Wesley" }
+ @String{AllynBacon = "Allyn and Bacon" }
+ @String{AMS = "American Mathematical Society" }
+ @String{Birkhauser = "Birkha{\"u}ser" }
+ @String{CambridgePress = "Cambridge University Press" }
+ @String{Chelsea = "Chelsea" }
+ @String{ClaredonPress = "Claredon Press" }
+ @String{DoverPub = "Dover Publications" }
+ @String{Eyolles = "Eyolles" }
+ @String{HoltRinehartWinston = "Holt, Rinehart and Winston" }
+ @String{Interscience = "Interscience" }
+ @String{JohnsHopkinsPress = "The Johns Hopkins University Press" }
+ @String{JohnWileySons = "John Wiley and Sons" }
+ @String{Macmillan = "Macmillan" }
+ @String{MathWorks = "The Math Works Inc." }
+ @String{McGrawHill = "McGraw-Hill" }
+ @String{NatBurStd = "National Bureau of Standards" }
+ @String{NorthHolland = "North-Holland" }
+ @String{OxfordPress = "Oxford University Press" }  %address Oxford or London?
+ @String{PergamonPress = "Pergamon Press" }
+ @String{PlenumPress = "Plenum Press" }
+ @String{PrenticeHall = "Prentice-Hall" }
+ @String{SIAMPub = "{SIAM} Publications" }
+ @String{Springer = "Springer" }
+ @String{TexasPress = "University of Texas Press" }
+ @String{VanNostrand = "Van Nostrand" }
+ @String{WHFreeman = "W. H. Freeman and Co." }
+
+%Entries
+
+@inproceedings{polikarpova2015fully,
+  title={A fully verified container library},
+  author={Polikarpova, Nadia and Tschannen, Julian and Furia, Carlo A.},
+  booktitle={International Symposium on Formal Methods},
+  pages={414--434},
+  year=2015,
+  publisher=Springer,
+  address={Cham}
+}
+
+@article{beckert2004taclets,
+  author = {Beckert, Bernhard and Giese, Martin and Habermalz, Elmar and H\"ahnle, Reiner and Roth, Andreas and Schlager, Steffen},
+  year = {2004},
+  volume = {98},
+  number = {1},
+  pages = {17--53},
+  title = {Taclets: A New Paradigm for Constructing Interactive Theorem Provers},
+  journal = RACSAM
+}
+
+@article{geuvers2009proof,
+  title={Proof assistants: History, ideas and future},
+  author={Geuvers, Herman},
+  journal={S\=adhan\=a},
+  volume={34},
+  number={1},
+  pages={3--25},
+  year={2009},
+  publisher={Springer}
+}
+
+@techreport{huisman2014jml,
+    author       = {Huisman, Marieke and Ahrendt, Wolfgang and Bruns, Daniel and Hentschel, Martin},
+    year         = {2014},
+    title        = {Formal Specification with {JML}},
+    institution  = {Karlsruher Institut f{\"{u}}r Technologie (KIT)},
+    issn         = {2190-4782},
+    series       = {Karlsruhe Reports in Informatics},
+    pagetotal    = {51},
+    language     = {english}
+}
+
+@article{meyer1992contract,
+  title={Applying `design by contract'},
+  author={Meyer, Bertrand},
+  journal={Computer},
+  volume={25},
+  number={10},
+  pages={40--51},
+  year={1992},
+  publisher={IEEE}
+}
+
+@article{bubel2008taclets,
+  title={Ensuring the correctness of lightweight tactics for {JavaCard} dynamic logic},
+  author={Bubel, Richard and Roth, Andreas and R{\"u}mmer, Philipp},
+  journal={Electronic Notes in Theoretical Computer Science},
+  volume={199},
+  pages={107--128},
+  year={2008},
+  publisher={Elsevier}
+}
+
+@unpublished{leavens2013jml,
+    title={{JML} Reference Manual},
+    author={Leavens, Gary T. and Poll, Erik and Clifton, Curtis and Cheon, Yoonsik and Ruby, Clyde and Cok, David and M\"uller, Peter and Kiniry, Joseph and Chalin, Patrice and Zimmerman, Daniel M. and Dietl, Werner},
+    year={2013},
+    note={Unpublished manuscript, revision 2344}
+}
+
+
+@article{GouwBBHRS19,
+  author    = {Stijn de Gouw and
+               Frank S. de Boer and
+               Richard Bubel and
+               Reiner H{\"{a}}hnle and
+               Jurriaan Rot and
+               Dominic Steinh{\"{o}}fel},
+  title     = {Verifying {OpenJDK}'s Sort Method for Generic Collections},
+  journal   = {J. Autom. Reasoning},
+  volume    = {62},
+  number    = {1},
+  pages     = {93--126},
+  year      = {2019},
+}
+
+@book{knuth1997art,
+  title={The art of computer programming},
+  author={Knuth, Donald E.},
+  volume={1},
+  year={1997},
+  publisher={Addison-Wesley}
+}
+
+@proceedings{FM2011,
+  editor    = {Bernhard Beckert and
+               Ferruccio Damiani and
+               Frank S. de Boer and
+               Marcello M. Bonsangue},
+  title     = {Formal Methods for Components and Objects, 10th International Symposium,
+               {FMCO} 2011, Turin, Italy, October 3-5, 2011, Revised Selected Papers},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {7542},
+  publisher = {Springer},
+  year      = {2013},
+}
+
+@incollection{LeavensBR99,
+  author    = {Gary T. Leavens and
+               Albert L. Baker and
+               Clyde Ruby},
+  title     = {{JML:} {A} Notation for Detailed Design},
+  booktitle = {Behavioral Specifications of Businesses and Systems},
+  pages     = {175--188},
+  year      = {1999},
+}
+@inproceedings{Nipkow:1998:JLT:268946.268960,
+ author = {Nipkow, Tobias and von Oheimb, David},
+ title = {Java\emph{light} is type-safe: definitely},
+ booktitle = {Proceedings of the 25th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+ series = {POPL '98},
+ year = {1998},
+ isbn = {0-89791-979-3},
+ location = {San Diego, California, USA},
+ pages = {161--170},
+ numpages = {10},
+ doi = {10.1145/268946.268960},
+ acmid = {268960},
+ publisher = {ACM},
+} 
+
+@article{Klein:2006:MMJ:1146809.1146811,
+ author = {Klein, Gerwin and Nipkow, Tobias},
+ title = {A Machine-checked Model for a {J}ava-like Language, Virtual Machine, and Compiler},
+ journal = {ACM Trans. Program. Lang. Syst.},
+ issue_date = {July 2006},
+ volume = {28},
+ number = {4},
+ month = jul,
+ year = {2006},
+ issn = {0164-0925},
+ pages = {619--695},
+ numpages = {77},
+ doi = {10.1145/1146809.1146811},
+ acmid = {1146811},
+ publisher = {ACM},
+}
+
+@inproceedings{klint2009rascal,
+  title={Rascal: A domain specific language for source code analysis and manipulation},
+  author={Klint, Paul and Van Der Storm, Tijs and Vinju, Jurgen},
+  booktitle={2009 Ninth IEEE International Working Conference on Source Code Analysis and Manipulation},
+  pages={168--177},
+  year={2009},
+  organization={IEEE}
+}
+
+@article{knuppel2018experience,
+  title={Experience Report on Formally Verifying Parts of {OpenJDK's API} with {KeY}},
+  author={Kn{\"u}ppel, Alexander and Th{\"u}m, Thomas and Pardylla, Carsten and Schaefer, Ina},
+  journal={arXiv preprint arXiv:1811.10818},
+  year={2018}
+}
+
+@article{phrack2018escaping,
+  title={Twenty years of Escaping the {Java} Sandbox},
+  author={Ieu Eauvidoum and disk noise},
+  journal={Phrack Magazine},
+  year={2018},
+  month={September},
+  url={http://www.phrack.org/papers/escaping_the_java_sandbox.html}
+}
+
+
+@article{GouwBR14,
+  author    = {Stijn de Gouw and
+               Frank S. de Boer and
+               Jurriaan Rot},
+  title     = {{Proof} {Pearl}: The {KeY} to Correct and Stable Sorting},
+  journal   = {J. Autom. Reasoning},
+  volume    = {53},
+  number    = {2},
+  pages     = {129--139},
+  year      = {2014},
+}
+
+@inproceedings{GouwRBBH15,
+  author    = {Stijn de Gouw and
+               Jurriaan Rot and
+               Frank S. de Boer and
+               Richard Bubel and
+               Reiner H{\"{a}}hnle},
+  title     = {{OpenJDK's Java.utils.Collection.sort()} Is Broken: The Good, the Bad
+               and the Worst Case},
+  booktitle = {Computer Aided Verification - 27th International Conference, {CAV}
+               2015, San Francisco, CA, USA, July 18-24, 2015, Proceedings, Part
+               {I}},
+  pages     = {273--289},
+  year      = {2015},
+}
+
+@book{KeYbook,
+  editor    = {Wolfgang Ahrendt and
+               Bernhard Beckert and
+               Richard Bubel and
+               Reiner H{\"{a}}hnle and
+               Peter H. Schmitt and
+               Mattias Ulbrich},
+  title     = {Deductive Software Verification - The KeY Book - From Theory to Practice},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {10001},
+  publisher = {Springer},
+  year      = {2016},
+}
+
+@inproceedings{Baumann12,
+  author    = {Christoph Baumann and
+               Bernhard Beckert and
+               Holger Blasum and
+               Thorsten Bormer},
+  title     = {Lessons Learned From Microkernel Verification -- Specification is
+               the New Bottleneck},
+  booktitle = {Proceedings Seventh Conference on Systems Software Verification, {SSV}
+               2012, Sydney, Australia, 28-30 November 2012.},
+  pages     = {18--32},
+  year      = {2012},
+  doi       = {10.4204/EPTCS.102.4},
+}
+@inproceedings{KlebanovMSLWAABCCHJLMPPRSTTUW11,
+  author    = {Vladimir Klebanov and
+               Peter M{\"{u}}ller and
+               others},
+  title     = {The 1st Verified Software Competition: Experience Report},
+  booktitle = {{FM} 2011: Formal Methods - 17th International Symposium on Formal
+               Methods, Limerick, Ireland, June 20-24, 2011. Proceedings},
+  pages     = {154--168},
+  year      = {2011},
+  doi       = {10.1007/978-3-642-21437-0\_14},
+  timestamp = {Tue, 14 May 2019 10:00:46 +0200},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{Cok14,
+  author    = {David R. Cok},
+  title     = {{OpenJML}: Software verification for {Java 7} using {JML}, {OpenJDK}, and
+               {Eclipse}},
+  booktitle = {Proceedings 1st Workshop on Formal Integrated Development Environment,
+               {F-IDE} 2014, Grenoble, France, April 6, 2014.},
+  pages     = {79--92},
+  year      = {2014},
+  doi       = {10.4204/EPTCS.149.8},
+}
+
+@misc{hiep2019prooffiles,
+  author       = {{Hans-Dieter} A. Hiep and
+                  Olaf Maathuis and
+                  Jinting Bian and
+                  Frank S. de Boer and
+                  Marko van Eekelen and
+                  Stijn de Gouw},
+  title        = {{Verifying OpenJDK's LinkedList using KeY: Proof 
+                   Files}},
+  year         = 2019,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.3517082}
+}
+
+@misc{Bian2019,
+author = "Jinting Bian and {Hans-Dieter} A. Hiep",
+title = "{Verifying OpenJDK's LinkedList using KeY: Video}",
+year = "2019",
+publisher = {Figshare},
+doi = "10.6084/m9.figshare.10033094.v2"
+}

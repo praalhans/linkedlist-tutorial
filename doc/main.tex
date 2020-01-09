@@ -1,0 +1,91 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage{textcomp}
+\usepackage{framed}
+\usepackage{amsmath}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{caption}
+\usepackage{minted}
+\usemintedstyle{stata}
+%\setminted{fontsize=\scriptsize}
+\usepackage[htt]{hyphenat}
+\usepackage{xargs}
+\usepackage{xparse}
+\usepackage{pgfplotstable}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+\usepackage{fnpct}
+\usepackage{nicefrac}
+%\usepackage{lineno}\linenumbers
+\usepackage[inline]{enumitem}
+\input{custom}
+
+\newcommand\inputjml[1]{\inputminted[breaklines,fontsize=\scriptsize,tabsize=2]{jml.py:JMLLexer -x}{\snippet{#1}}}
+\newcommand\inputjmlln[1]{\inputminted[breaklines,fontsize=\scriptsize,linenos=true,tabsize=2]{jml.py:JMLLexer -x}{\snippet{#1}}}
+\newcommand\inputkey[1]{\inputminted[breaklines,fontsize=\scriptsize,tabsize=2]{jml.py:KeYLexer -x}{\snippet{#1}}}
+
+\def\pp{\ensuremath{\mathord{++}}}
+\def\bs{\char092}
+
+\pgfplotsset{compat=1.15}
+\setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
+
+\newtheorem*{prop}{Proposition}
+\newtheorem*{method}{Method Contract}
+
+\begin{document}
+
+\title{A Tutorial on Verifying \texttt{LinkedList} using KeY}
+
+\author{{Hans-Dieter} A. Hiep\orcidID{0000-0001-9677-6644}\footnote{Corresponding author: \texttt{hdh@cwi.nl}}\and Jinting Bian\and\\
+Frank S. de Boer\and Stijn de Gouw}
+\authorrunning{H.A. Hiep, J. Bian, et al.}
+
+\institute{CWI, Science Park 123, 1098 XG Amsterdam, The Netherlands\\
+\email{\{hdh,j.bian,frb,stijn.de.gouw\}@cwi.nl}}
+
+\maketitle
+
+\begin{abstract}
+As a particular case study of the formal verification of state-of-the-art, real  software, we discuss the specification and verification of a corrected version of the implementation of a linked list as provided by the Java Collection framework.
+\end{abstract}
+
+\keywords{Java, standard library, deductive verification, KeY, Java Modeling Language, case study, bug}
+
+\input{section/1_introduction.tex}
+
+\input{section/2_linkedlist.tex}
+\input{section/2/1_bugs.tex}
+\input{section/2/2_repro.tex}
+\input{section/2/3_direction.tex}
+
+%\input{section/3_formal.tex}
+%\input{section/3/1_key.tex}
+%\input{section/3/2_heaps.tex}
+%\input{section/3/3_jml.tex}
+
+\input{section/4_improved.tex}
+\input{section/4/2_scope.tex}
+\input{section/4/3_specification.tex}
+\input{section/4/4_verification.tex}
+
+\input{section/5_discussion.tex}
+%\input{section/5/1_limitations.tex}
+\input{section/5/2_related_work.tex}
+
+\newpage
+\bibliographystyle{splncs04}
+\bibliography{base}
+
+\appendix
+
+%\input{appendix/1_bug_reports.tex}
+\input{appendix/5_proof_effort.tex}
+\input{appendix/3_additional_listings.tex}
+%\input{appendix/4_jml_specs.tex}
+
+\end{document}
+\endinput
