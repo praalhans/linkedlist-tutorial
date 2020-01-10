@@ -10,15 +10,16 @@
 \usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{fnpct}
+\usepackage{dirtree}
 
 \makeatletter
-
 \DeclareRobustCommand*{\lyxarrow}{%
 \@ifstar
 {\leavevmode\,$\triangleleft$\,\allowbreak}
 {\leavevmode\,$\triangleright$\,\allowbreak}}
-
 \makeatother
+
+\def\bs{\char092}
 
 \begin{document}
 
@@ -45,7 +46,7 @@ This tutorial intends to show how we take an existing Java program that is part 
 
 We take a formal approach to both specification and reasoning about programs, allowing us to increase the reliability of our reached conclusions. In particular, the specifications we write are expressed in the Java Modeling Language (JML), and our reasoning is tool-supported and partially automated by KeY. To the best of the authors' knowledge, KeY is the only tool that supports enough features of the Java programming language for reasoning about realistic programs, of which its run-time behavior crucially depends on the presence of such features, such as: dynamic object creation, exception handling, integer arithmetic with overflow, \texttt{for} and \texttt{foreach} loops with early returns, nested classes (both static and non-static), inheritance, polymorphism, erased generics, etc.
 
-As a demonstration of applying KeY to real software, we will focus on Java's \texttt{LinkedList} class for two reasons. First, a (doubly-)linked list is a well-known basic data structure for storing and maintaining unbounded data, and has many applications: for example, in Java's secure sockets implementation. Second, it has turned out that there is a 20-year-old bug lurking in its program, that might cause security issues on large memory systems, caused by the overflow of a field that caches the length of the list. Our specification and verification effort will be aimed at establishing the absence of this bug from a repaired program.
+As a demonstration of applying KeY to real software, we will focus on Java's \texttt{LinkedList} class for two reasons. First, a (doubly-)linked list is a well-known basic data structure for storing and maintaining unbounded data, and has many applications: for example, in Java's secure sockets implementation. Second, it has turned out that there is a 20-year-old bug lurking in its program, that might lead to in-depth security issues on large memory systems, caused by the overflow of a field that caches the length of the list. Our specification and verification effort will be aimed at establishing the absence of this bug from a repaired program.
 
 In this tutorial, we see how to set-up a project and configure the KeY tool, and outline the general workflow that we follow (Section~\ref{sec:setup}). We study the source code of the \texttt{LinkedList}, and get an intuitive grasp of its essential structure: how the various instances of this class look like, and how some essential methods operate on these instances (Section~\ref{sec:linkedlist}).
 
@@ -56,44 +57,77 @@ The difficulty level increases after we specify the \texttt{remove} method (Sect
 Some other methods of \texttt{LinkedList} are left as exercises to the reader: finding their specifications and proving them correct is not trivial, but are done in a similar way. We conclude with remaining methods that still pose challenges.
 
 \section{Set-up}\label{sec:setup}
-\subsection{Project files}
+
+First we will set-up the project files needed to use KeY. The project files are available on-line: these can be downloaded and include the KeY software version that we use. ??? After unpacking the project files, we end up with the directory structure of Table~\ref{tab:directory-structure}.
+
+The original source file of \texttt{LinkedList.java} was obtained from OpenJDK version \texttt{jdk8-b132}. The original has been pre-processed: generic class parameters are removed, and all methods and nested classes irrelevant to this tutorial are removed. Both the removal of generics and the stub files in the \texttt{jre} folder were generated automatically, using the Eclipse extensions for KeY. Repeating these steps is not necessary here.
+
+\begin{table}[]
+\dirtree{%
+.1 linkedlist-tutorial.
+.2 key-2.6.3.zip.
+.2 LinkedList.key.
+.2 src.
+.3 java.
+.4 util.
+.5 LinkedList.java.
+.5 LinkedList.solution.
+.2 jre.
+.3 java.
+.4 ....
+}
+\medskip
+    \caption{Directory structure of project files. The \texttt{src} directory contains the Java classes we want to specify and verify. The \texttt{jre} directory contains stub files, with specifications of unrelated classes. The \texttt{LinkedList.solution} file is the source file we end up with after following this tutorial.}
+    \label{tab:directory-structure}
+\end{table}
+
 \subsection{KeY settings}
 
-To produce proofs in KeY, the first step is to set-up KeY's taclet base to make use of particular groups of rules that correctly model Java's integer overflow semantics. This has to be done only once, as these taclet settings are stored per computer user. Sometimes, KeY overwrites or corrupts these settings if different versions are used: in that case, one can remove ??? from the user's home directory.
+To produce proofs in KeY, the first step is to set-up KeY's taclet base to make use of particular groups of rules that correctly model Java's integer overflow semantics. This has to be done only once, as these taclet settings are stored per computer user. Sometimes, KeY overwrites or corrupts these settings if different versions are used. To ensure KeY starts in a fresh state, one can remove the \texttt{.key} directory from the user's home director, and clean out preferences from the \texttt{.java/.userPrefs} directory by deleting the \texttt{de/uka/ilkd/key} hierarchy containing \texttt{prefs.xml} files\footnote{On Windows, the preferences are instead stored in the Windows Registry. Use the \texttt{regedit} tool and clean out under \texttt{HKEY\_CURRENT\_USER\bs Software\bs JavaSoft\bs Prefs} or \texttt{HKEY\_CURRENT\_USER\bs Software\bs Wow6432Node\bs JavaSoft\bs Prefs} the same hierarchy. On Mac OS, open a terminal, change directory to \texttt{\textasciitilde/Library/Preferences} and delete \texttt{de.uka.ilkd.plist}}.
 
-Start up KeY and load an example (File\lyxarrow Load Example\lyxarrow choose the first example). Then open Options\lyxarrow Taclet Options, and configure them as follows:
+Now start up KeY, and the example selection screen appears (if not, selecting File\lyxarrow Load Example opens the same screen). Load any example, to enter proof mode. Select Options\lyxarrow Taclet Options, and configure the options as Table~\ref{tab:taclet-options}.
 
-\begin{description}
-\item [JavaCard] Off
-\item [Strings] On
-\item [Assertions] Safe
-\item [BigInt] On
-\item [Initialization] Disable static initialization
-\item [Integer Rules] Java semantics
-\item [Integer Simplification Rules] Full
-\item [Join Generate Is Weakening Goal] Off
-\item [Model Fields] Treat as axiom
-\item [More Sequence Rules] On
-\item [Permissions] Off
-\item [Program Rules] Java
-\item [Reach] On
-\item [Runtime Exceptions] Ban
-\item [Sequences] On
-\item [Well-definedness Checks] Off
-\item [Well-definedness Operator] L
-\end{description}
+\begin{table}[]
+    \begin{tabular}{l@{\hskip6pt}|@{\hskip6pt}l}
+    \textbf{JavaCard} & \textbf{Off} \\
+    Strings & On \\
+    Assertions & Safe \\
+    BigInt & On \\
+    Initialization & Disable static initialization \\
+    \textbf{Int Rules} & \textbf{Java semantics} \\
+    Integer Simplification Rules & Full \\
+    Join Generate Is Weakening & Off \\
+    Model Fields & Treat as axiom \\
+    \textbf{More Sequence Rules} & \textbf{On} \\
+    Permissions & Off \\
+    Program Rules & Java \\
+    Reach & On \\
+    Runtime Exceptions & Ban \\
+    Sequences & On \\
+    Well-definedness Checks & Off \\
+    Well-definedness Operator & L
+    \end{tabular}
+    \medskip
+    \caption{The taclet options we use. The boldface options are changed from the default. The JavaCard setting is changed from On to Off, the Int Rules settings is changed from ignoring overflow to Java semantics, and the More Sequence Rules is changed from Off to On.}
+    \label{tab:taclet-options}
+\end{table}
 
-After setting these taclet options, they become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a contract selection window opens up, showing a class hierarchy and its methods. Selecting a method shows its method contracts. There may be no method contracts when no specification have been written. After following the examples below, method contracts can be selected in this window.
+After setting these taclet options, they become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a contract selection window opens up, showing a class hierarchy and its methods. A method is not shown when no specifications for it are written. After following the examples below, more method contracts can be selected in this window.
 
 \subsection{Workflow}
 
+We follow the general workflow underlying the TimSort case as depicted in Figure \ref{fig:wf}. The workflow starts with a formalisation of the informal documentation of the Java code in the Java Modeling Language \cite{LeavensBR99}. %supported by the KeY theorem prover.
+This formalisation goes hand in hand with the formal verification: failed verification attempts can provide information about
+further refinements of the specs. A failed verification attempt may also indicate an error in the code,
+and can as such be used for the generation of test cases to detect the error at run-time.
 
 \section{\texttt{java.util.LinkedList}}\label{sec:linkedlist}
 
 This class has three attributes: a \texttt{size} field, which stores the number of elements in the list, and two
 fields that store a reference to the \texttt{first} and \texttt{last} node. Internally, it uses the private static nested \texttt{Node} class to represent the items in the list. A static nested private class behaves like a top-level class, except that it is not visible outside the enclosing class (\texttt{LinkedList}, in this case). Nodes are doubly linked; each node is connected to the preceding (field \texttt{prev}) and succeeding node (field \texttt{next}). These fields contain \texttt{null} in case no preceding or succeeding node exists. The data itself is contained in the \texttt{item} field of a node.
 
-Source
+
+
 Constructor, add method, remove method
 
 \subsection{Expected behavior}
