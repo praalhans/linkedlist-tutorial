@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70212" creator="Ipe 7.2.12">
-<info created="D:20200110143820" modified="D:20200110143820"/>
+<info created="D:20200110143820" modified="D:20200110145017"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -323,5 +323,7 @@ h
 <text matrix="1 0 0 1 0 -24" transformations="translations" pos="324 724" stroke="black" type="label" width="24.1" height="5.535" depth="1.55" valign="baseline" size="footnote">\emph{failure}</text>
 <text matrix="1 0 0 1 -164 -24" transformations="translations" pos="324 724" stroke="black" type="label" width="39.992" height="5.535" depth="1.55" halign="center" valign="baseline" size="footnote">\emph{refinement}</text>
 <text matrix="1 0 0 1 -164 -56" transformations="translations" pos="324 724" stroke="black" type="label" width="29.625" height="5.234" depth="0" halign="center" valign="baseline" size="footnote">\emph{revision}</text>
+<text matrix="1 0 0 1 16 -4" transformations="translations" pos="240 760" stroke="black" type="label" width="28.228" height="7.473" depth="2.49" halign="right" valign="baseline">(JML)</text>
+<text matrix="1 0 0 1 64 -36" transformations="translations" pos="240 760" stroke="black" type="label" width="27.397" height="7.473" depth="2.49" halign="right" valign="baseline">(KeY)</text>
 </page>
 </ipe>
