@@ -116,7 +116,14 @@ After setting these taclet options, they become effective after loading the next
 
 \subsection{Workflow}
 
-We follow the general workflow underlying the TimSort case as depicted in Figure \ref{fig:wf}. The workflow starts with a formalisation of the informal documentation of the Java code in the Java Modeling Language \cite{LeavensBR99}. %supported by the KeY theorem prover.
+\begin{figure}
+    \centering
+    \includegraphics[width=272pt]{figures/workflow.eps}
+    \caption{The workflow for our verification process. We start by analyzing the source code, to gain an intuitive understanding of the linked list class. From that we formalize a specification. After formalizing the specification, we attempt to verify its methods. Our attempt could fail because the specification is not sufficiently detailed: we refine the specification. Another reason for failure to verify is that the source code contains an error: in this case, we can demonstrate the unexpected behavior by writing a test case. The test case then shows there is a run in which the linked list behaves unexpectedly. This leads to a revision of the source code to fix the error. Now, the specification has to be reviewed and the verification attempt can continue. We are successful once the verification attempt is completed with a formal proof.}
+    \label{fig:workflow}
+\end{figure}
+
+We follow the general workflow as depicted in Figure~\ref{fig:workflow}. The workflow starts with a formalisation of the informal documentation of the Java code in the Java Modeling Language \cite{LeavensBR99}. %supported by the KeY theorem prover.
 This formalisation goes hand in hand with the formal verification: failed verification attempts can provide information about
 further refinements of the specs. A failed verification attempt may also indicate an error in the code,
 and can as such be used for the generation of test cases to detect the error at run-time.
