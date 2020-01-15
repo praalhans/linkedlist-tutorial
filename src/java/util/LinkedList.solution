@@ -59,25 +59,6 @@ public class LinkedList {
     private /*@ strictly_pure @*/ void lemma_acyclic() {}
 
     /*@
-      @ private normal_behavior
-      @ requires 0 <= nodeIndex && nodeIndex <= nodeList.length;
-      @ requires (\forall \bigint i; 0 <= i < nodeIndex - 1;
-      @   ((Node)nodeList[i]).next == (Node)nodeList[i + 1]);
-      @ requires (\forall \bigint i; nodeIndex <= i < nodeList.length - 1;
-      @   ((Node)nodeList[i]).next == (Node)nodeList[i + 1]);
-      @ requires nodeIndex < nodeList.length ==>
-      @   ((Node)nodeList[nodeIndex-1]).next == (Node)nodeList[nodeIndex];
-      @ requires (\forall \bigint i; 0 < i < nodeIndex;
-      @   ((Node)nodeList[i]).prev == (Node)nodeList[i - 1]);
-      @ requires (\forall \bigint i; nodeIndex < i < nodeList.length;
-      @   ((Node)nodeList[i]).prev == (Node)nodeList[i - 1]);
-      @ requires 0 < nodeIndex ==>
-      @   ((Node)nodeList[nodeIndex]).prev == (Node)nodeList[nodeIndex-1];
-      @ ensures \invariant_for(this);
-      @*/ 
-    private /*@ helper strictly_pure @*/ void lemma_unlinking() {}
-
-    /*@
       @ normal_behavior
       @   requires
       @     nodeList != \seq_empty &&
