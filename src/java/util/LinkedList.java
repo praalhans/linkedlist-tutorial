@@ -6,7 +6,7 @@ public class LinkedList {
     transient Node first;
     transient Node last;
     
-    public BoundedLinkedList() {}
+    public LinkedList() {}
 
     void linkLast(Object e) {
         final Node l = last;

@@ -28,7 +28,7 @@ public class LinkedList {
       @ public normal_behavior
       @   ensures nodeList == \seq_empty;
       @*/
-    public BoundedLinkedList() {}
+    public LinkedList() {}
 
     /*@
       @ normal_behavior
@@ -51,11 +51,31 @@ public class LinkedList {
 
     /*@ private normal_behavior
       @ requires true;
-      @ ensures (\forall \bigint i; 0 <= i < (\bigint)nodeList.length - (\bigint)1;
+      @ ensures (\forall \bigint i;
+      @     0 <= i < (\bigint)nodeList.length - (\bigint)1;
       @   (\forall \bigint j; i < j < nodeList.length;
       @     nodeList[i] != nodeList[j]));
       @*/
     private /*@ strictly_pure @*/ void lemma_acyclic() {}
+
+    /*@
+      @ private normal_behavior
+      @ requires 0 <= nodeIndex && nodeIndex <= nodeList.length;
+      @ requires (\forall \bigint i; 0 <= i < nodeIndex - 1;
+      @   ((Node)nodeList[i]).next == (Node)nodeList[i + 1]);
+      @ requires (\forall \bigint i; nodeIndex <= i < nodeList.length - 1;
+      @   ((Node)nodeList[i]).next == (Node)nodeList[i + 1]);
+      @ requires nodeIndex < nodeList.length ==>
+      @   ((Node)nodeList[nodeIndex-1]).next == (Node)nodeList[nodeIndex];
+      @ requires (\forall \bigint i; 0 < i < nodeIndex;
+      @   ((Node)nodeList[i]).prev == (Node)nodeList[i - 1]);
+      @ requires (\forall \bigint i; nodeIndex < i < nodeList.length;
+      @   ((Node)nodeList[i]).prev == (Node)nodeList[i - 1]);
+      @ requires 0 < nodeIndex ==>
+      @   ((Node)nodeList[nodeIndex]).prev == (Node)nodeList[nodeIndex-1];
+      @ ensures \invariant_for(this);
+      @*/ 
+    private /*@ helper strictly_pure @*/ void lemma_unlinking() {}
 
     /*@
       @ normal_behavior
@@ -70,6 +90,7 @@ public class LinkedList {
       @     nodeIndex == \old(nodeIndex);
       @*/
     /*@ nullable @*/ Object unlink(Node x) {
+	lemma_acyclic(); // new
         //@ set nodeList = \seq_concat(\dl_seqSub(nodeList,0,nodeIndex), \dl_seqSub(nodeList,nodeIndex+1,\dl_seqLen(nodeList)));
         final Object element = x.item;
         final Node next = x.next;
@@ -86,6 +107,7 @@ public class LinkedList {
         }
         x.item = null;
         size--;
+	lemma_unlinking(); // new
         return element;
     }
 
@@ -129,35 +151,20 @@ public class LinkedList {
     // implements java.util.Collection.remove
     /*@
       @ public normal_behavior
-      @   requires o == null;
+      @   requires true;
       @   ensures
       @     \result == false ==>
       @       (\forall \bigint i; 0 <= i < \old(nodeList.length);
-      @         \old(((Node)nodeList[i]).item) != null) &&
-      @       nodeList == \old(nodeList);
+      @         \old(((Node)nodeList[i]).item) != null || !\old(o.equals(((Node)nodeList[i]).item)))
+      @       && nodeList == \old(nodeList);
       @   ensures
       @     \result == true ==>
       @       (\exists \bigint j; 0 <= j < \old(nodeList.length);
       @         (\forall \bigint i; 0 <= i < j;
-      @           \old(((Node)nodeList[i]).item) != null) &&
-      @         nodeList == \seq_concat(\old(nodeList)[0..j],
+      @           \old(((Node)nodeList[i]).item) != null || !\old(o.equals(((Node)nodeList[i]).item)))
+      @         &&   nodeList == \seq_concat(\old(nodeList)[0..j],
       @           \old(nodeList)[j+1..\old(nodeList.length)]) &&
-      @         \old(((Node)nodeList[j]).item) == null);
-      @ public normal_behavior
-      @   requires o != null;
-      @   ensures
-      @     \result == false ==>
-      @       (\forall \bigint i; 0 <= i < \old(nodeList.length);
-      @         !\old(o.equals(((Node)nodeList[i]).item))) &&
-      @       nodeList == \old(nodeList);
-      @   ensures
-      @     \result == true ==>
-      @       (\exists \bigint j; 0 <= j < \old(nodeList.length);
-      @         (\forall \bigint i; 0 <= i < j;
-      @           !\old(o.equals(((Node)nodeList[i]).item))) &&
-      @         nodeList == \seq_concat(\old(nodeList)[0..j],
-      @           \old(nodeList)[j+1..\old(nodeList.length)]) &&
-      @       \old(o.equals(((Node)nodeList[j]).item)));
+      @         (\old(((Node)nodeList[j]).item) == null || \old(o.equals(((Node)nodeList[j]).item))));
       @*/
     public boolean remove(/*@ nullable @*/ Object o) {
         //@ ghost \bigint index = -1;
