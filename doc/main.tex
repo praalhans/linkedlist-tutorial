@@ -69,7 +69,7 @@ We see how to set-up a project and configure the KeY tool (Section~\ref{sec:setu
 
 To keep this presentation reasonably short, we further focus on the methods \texttt{add} and \texttt{remove}. We formulate, based on previous intuition, a \emph{class invariant} in JML that expresses a property that is true of every instance (Section~\ref{sec:class-invariant}). We then formulate a \emph{method contract} for the \texttt{add} method that describes its expected behavior and we verify that its implementation is correct (Section~\ref{sec:add}).
 
-The difficulty level increases after we specify the \texttt{remove} method (Section~\ref{sec:remove}), as its verification requires more work than before. A lemma is needed, one that follows from the invariant (Section~\ref{sec:acyclicity}). We study a deeper method that \texttt{remove} depends on first (Section~\ref{sec:unlinking}), and use \emph{loop invariants} to prove the correctness of \texttt{remove} later (Section~\ref{sec:loop-invariant}). We conclude with some methods of \texttt{LinkedList} left as exercise to the reader (Section~\ref{sec:conclusion}): finding their specifications and proving them correct is not trivial, but done in a similar way.
+The difficulty level increases after we specify the \texttt{remove} method (Section~\ref{sec:remove}), as its verification requires more work than before. First, a lemma is needed that follows from the invariant. Then we study a deeper method that \texttt{remove} depends on, and finally use \emph{loop invariants} to prove the correctness of \texttt{remove}. We conclude with some methods of \texttt{LinkedList} left as exercise to the reader (Section~\ref{sec:conclusion}): finding their specifications and proving them correct is not trivial, but done in a similar way.
 
 \section{Set-up}\label{sec:setup}
 
@@ -91,6 +91,7 @@ The difficulty level increases after we specify the \texttt{remove} method (Sect
 }
 \medskip
     \caption{Directory structure of project files. The \texttt{src} directory contains the Java classes we want to specify and verify. The \texttt{jre} directory contains stub files, with specifications of unrelated classes. The \texttt{LinkedList.solution} file is the source file we end up with after following this tutorial. The \texttt{proof} directory contains the completed proofs.}
+    \vspace*{-20pt}
     \label{tab:directory-structure}
 \end{table}
 
@@ -121,8 +122,19 @@ Over the course of next sections, we will insert code into the linked list: anno
     \end{tabular}
     \medskip
     \caption{The proof search strategy settings we use.}
+    \vspace*{-20pt}
     \label{tab:proof-strategy}
 \end{table}
+
+To produce proofs in KeY, the first step is to set-up KeY's taclet base to make use of particular groups of rules that correctly model Java's integer overflow semantics. This has to be done only once, as these taclet settings are stored per computer user.
+
+Sometimes, KeY overwrites or corrupts these settings if different versions are used. To ensure KeY starts in a fresh state, one can remove the \texttt{.key} directory from the user's home directory, and clean out preferences from the \texttt{.java/.userPrefs} directory by deleting the \texttt{de/uka/ilkd/key} hierarchy containing \texttt{prefs.xml} files\footnote{On Windows, the preferences are instead stored in the Windows Registry. Use the \texttt{regedit} tool and clean out under \texttt{HKEY\_CURRENT\_USER\bs Software\bs JavaSoft\bs Prefs} or \texttt{HKEY\_CURRENT\_USER\bs Software\bs Wow6432Node\bs JavaSoft\bs Prefs} the same hierarchy. On Mac OS, open a terminal, change directory to \texttt{\textasciitilde/Library/Preferences} and delete \texttt{de.uka.ilkd.plist}}.
+
+Now start up KeY, and the example selection screen appears (if not, selecting File\lyxarrow Load Example opens the same screen). Load any example, to enter proof mode. 
+First, we set-up a proof strategy. On the right side of the window, change the settings in the Proof Search Strategy tab to match those of Table~\ref{tab:proof-strategy}. Then, select Options\lyxarrow Taclet Options, and configure the options as in Table~\ref{tab:taclet-options}.
+
+The taclet options become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a Proof Management window opens up, showing a class hierarchy and its methods. A method is not shown when no specifications for it are written. After giving specifications, what we will do below, more methods can be selected in this window.
+
 \begin{table}
     \begin{tabular}{l@{\hskip6pt}|@{\hskip6pt}l}
     \textbf{JavaCard} & \textbf{Off} \\
@@ -145,17 +157,9 @@ Over the course of next sections, we will insert code into the linked list: anno
     \end{tabular}
     \medskip
     \caption{The taclet options we use.}
+    \vspace*{-20pt}
     \label{tab:taclet-options}
 \end{table}
-
-To produce proofs in KeY, the first step is to set-up KeY's taclet base to make use of particular groups of rules that correctly model Java's integer overflow semantics. This has to be done only once, as these taclet settings are stored per computer user.
-
-Sometimes, KeY overwrites or corrupts these settings if different versions are used. To ensure KeY starts in a fresh state, one can remove the \texttt{.key} directory from the user's home directory, and clean out preferences from the \texttt{.java/.userPrefs} directory by deleting the \texttt{de/uka/ilkd/key} hierarchy containing \texttt{prefs.xml} files\footnote{On Windows, the preferences are instead stored in the Windows Registry. Use the \texttt{regedit} tool and clean out under \texttt{HKEY\_CURRENT\_USER\bs Software\bs JavaSoft\bs Prefs} or \texttt{HKEY\_CURRENT\_USER\bs Software\bs Wow6432Node\bs JavaSoft\bs Prefs} the same hierarchy. On Mac OS, open a terminal, change directory to \texttt{\textasciitilde/Library/Preferences} and delete \texttt{de.uka.ilkd.plist}}.
-
-Now start up KeY, and the example selection screen appears (if not, selecting File\lyxarrow Load Example opens the same screen). Load any example, to enter proof mode. 
-First, we set-up a proof strategy. On the right side of the window, change the settings in the Proof Search Strategy tab to match those of Table~\ref{tab:proof-strategy}. Then, select Options\lyxarrow Taclet Options, and configure the options as in Table~\ref{tab:taclet-options}.
-
-The taclet options become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a Proof Management window opens up, showing a class hierarchy and its methods. A method is not shown when no specifications for it are written. After giving specifications, what we will do below, more methods can be selected in this window.
 
 \section{\texttt{java.util.LinkedList}}\label{sec:linkedlist}
 
@@ -173,7 +177,7 @@ The \texttt{Node} class is defined as a private static nested class to represent
 
 \lstinputlisting[firstnumber=39,linerange=39-43,caption={The method \texttt{add}.},captionpos=b,label={lst:linkedlist-add}]{src/java/util/LinkedList.java}
 
-The method \texttt{add} for adding elements to the list, takes one argument, the item to add (Listing~\ref{lst:linkedlist-add}). The informal Java documentation for \texttt{Collection} specifies it always returns \texttt{true}. The implementation immediately calls an internal method: \texttt{linkLast}.
+The method \texttt{add} for adding elements to the list, takes one argument, the item to add (Listing~\ref{lst:linkedlist-add}). The informal Java documentation for \texttt{Collection} specifies it always returns \texttt{true}. The implementation immediately calls \texttt{linkLast}.
 
 \lstinputlisting[firstnumber=45,linerange=45-63,caption={The method \texttt{remove}.},captionpos=b,label={lst:linkedlist-remove}]{src/java/util/LinkedList.java}
 
@@ -185,7 +189,7 @@ Observe that the linked list is not modified if \texttt{unlink} is not called. A
 
 \lstinputlisting[firstnumber=11,linerange=11-18,caption={The internal method \texttt{linkLast}.},captionpos=b,label={lst:linkedlist-linkLast}]{src/java/util/LinkedList.java}
 
-The internal method \texttt{linkLast} changes the structure of the linked list (Listing~\ref{lst:linkedlist-linkLast}). After performing this method, a new node has been created, and the \texttt{last} field of the linked list now points to it. To maintain structural integrity, also other fields change: if the linked list were empty, the \texttt{first} field now points to the new, and only, node. If the linked list was not empty, then the new last node is also reachable via the former last node's \texttt{next} field. It is always the case that all items of a linked list are reachable through the \texttt{first} field, then following the \texttt{next} fields. The opposite is also the case: all items are reachable through the \texttt{last} field, then following the \texttt{prev} fields.
+The internal method \texttt{linkLast} changes the structure of the linked list (Listing~\ref{lst:linkedlist-linkLast}). After performing this method, a new node has been created, and the \texttt{last} field of the linked list now points to it. To maintain structural integrity, also other fields change: if the linked list were empty, the \texttt{first} field now points to the new, and only, node. If the linked list was not empty, then the new last node is also reachable via the former last node's \texttt{next} field. It is always the case that all items of a linked list are reachable through the \texttt{first} field, then following the \texttt{next} fields, and also for the opposite direction.
 
 \lstinputlisting[firstnumber=20,linerange=20-37,caption={The internal method \texttt{unlink}.},captionpos=b,label={lst:linkedlist-unlink}]{src/java/util/LinkedList.java}
 
@@ -287,9 +291,9 @@ Intuitively, each linked list consists of a sequence of nodes between its first 
 \begin{enumerate}[label=(\alph*)]
     \item $\forall i^\mathrm{int}; (0\leq i<\ell(\sigma)\to \mathrm{instanceof}_\mathit{Node}(\sigma[i]))$\\
     All its elements are nodes and not \texttt{null}
-    \item $\forall i^\mathrm{int}; (0<i<\ell(\sigma)\to \mathit{prev}(\sigma[i]) = \sigma[i-1])$\\
+    \item\label{item:prev} $\forall i^\mathrm{int}; (0<i<\ell(\sigma)\to \mathit{prev}(\sigma[i]) = \sigma[i-1])$\\
     The predecessor of node at position $i$ is the node at position $i-1$
-    \item $\forall i^\mathrm{int}: (0\leq i<\ell(\sigma)-1\to \mathit{next}(\sigma[i]) = \sigma[i+1])$\\
+    \item\label{item:next} $\forall i^\mathrm{int}: (0\leq i<\ell(\sigma)-1\to \mathit{next}(\sigma[i]) = \sigma[i+1])$\\
     The successor of node at position $i$ is the node at position $i+1$
 \end{enumerate}
 
@@ -318,7 +322,7 @@ There is a recording of an interactive session in KeY that demonstrates exactly 
 
 Due to the revision of the source code, the add method now calls \texttt{checkSize} first (see Listing~\ref{lst:linkedlist-fix}) to ensure that the size field does not overflow when we add another item. This means that the add method has two expected behaviors: the normal behavior when the length of the linked list is not yet at its maximum, and the exceptional behavior when the length of the linked list is at its maximum.
 
-In the normal case, we expect the \texttt{add} method to add the given argument as an item to the linked list. Thus the sequence of nodes must become larger. We can be specific in the position where we expect the item to be added: to the end of the list. The add method must return true in this case. In the exceptional case, we expect that an exception is thrown. These requirements are formalized in Listing~\ref{lst:jml-add-method}.
+In the normal case, we expect the \texttt{add} method to add the given argument as an item to the linked list. Thus the sequence of nodes must become larger. We can be specific in the position where we expect the item to be added: to the end of the list. The add method must return true in this case. In the exceptional case, we expect that an exception is thrown. We formalize it in Listing~\ref{lst:jml-add-method}.
 
 \lstinputlisting[numbers=none,caption={The \texttt{add} method with its method contract expressed in JML.},captionpos=b,label={lst:jml-add-method}]{figures/add_method.java}
 
@@ -332,12 +336,27 @@ For the \texttt{linkLast} method, we assume that the length of the linked list i
 
 \lstinputlisting[numbers=none,caption={The \texttt{linkLast} method with its method contract expressed in JML.},captionpos=b,label={lst:jml-linklast-method}]{figures/linklast_method.java}
 
-The verification of this method is no longer fully automatic, see \cite[1:25--6:52]{Bian2019addbranch}. Observe that there are two different situations we have to deal with: either the linked list was empty, or it was not. If the linked list was empty, then \texttt{last} is \texttt{null}, and we not only set the \texttt{last} field but also the \texttt{first}. Otherwise, if the linked list was not empty, we update the former last node to set its \texttt{next} field. In the latter case, the challenge is to prove that the class invariant holds after these heap updates. The main insight is that the creation of a new node does not alias with any of the existing nodes, and that the modification of the \texttt{next} field only affects the old last node.
+The verification of this method is no longer fully automatic, see \cite[1:25--6:52]{Bian2019addbranch}. Observe that there are two different situations we have to deal with: either the linked list was empty, or it was not. If the linked list was empty, then \texttt{last} is \texttt{null}, and we not only set the \texttt{last} field but also the \texttt{first}. Otherwise, if the linked list was not empty, we update the former last node to set its \texttt{next} field. In the latter case, the challenge is to prove that the class invariant holds after these heap updates. The main insight is that the creation of a new node does not alias with any of the existing nodes, and that the modification of the \texttt{next} field only affects the old last node, see Fig.~\ref{fig:linklast}.
+
+The properties \ref{item:prev}, that fixes \texttt{prev} fields to point to the previous node in the sequence, and \ref{item:next}, that fixes \texttt{next} fields to point to the next node in the sequence, of the chain are the open remaning goals in \cite[3:58]{Bian2019addbranch}. Proving \ref{item:prev} is straightforward if one makes a distinction between the old and new nodes. Proving \ref{item:next} involves two cases: either the index is between $0$ and less than $\ell(\sigma)-2$, or it used to be the last node and now has index $\ell(\sigma)-2$. In the former case, the heap update has no effect, as we can show that these nodes are separate from the old last node because they differ in the old value of the next field. In the latter case, the heap update can be used to prove the property directly.
+
+\begin{figure}
+   \centering
+   \includegraphics[scale=0.4]{figures/linkedlist-linklast.eps}
+   \caption{The heap before ($H_b$) consists of an arbitrary chain of nodes. In the heap after ($H_a$) the dashed lines show which objects are identical to the heap before. The old last node at $\sigma[\ell(\sigma)-1]$ has a different value for its $\mathit{next}$ field in the heap after: this must be the result of a heap update. The new last node does not occur in the heap before: this must be the result of creating a new node.}
+   \label{fig:linklast}
+\end{figure}
+
+Finally, we can verify the \texttt{add} method: see \cite[6:58--8:08]{Bian2019addbranch} for the normal behavior case, and \cite[8:09--]{Bian2019addbranch} for the exceptional behavior case.
 
 \section{The \texttt{remove} method}\label{sec:remove}
-\section{Acyclicity}\label{sec:acyclicity}
-\section{Unlinking}\label{sec:unlinking}
-\section{Loop invariants}\label{sec:loop-invariant}
+
+%Acyclicity
+
+%Unlinking
+
+%Loop invariants
+
 \section{Conclusion}\label{sec:conclusion}
 
 \bibliographystyle{splncs04}
