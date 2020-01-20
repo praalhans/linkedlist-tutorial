@@ -1,18 +1,27 @@
+\RequirePackage{amsmath}
 \documentclass[runningheads]{llncs}
-%\documentclass{article}
 
 \usepackage{textcomp}
 \usepackage{framed}
-\usepackage{amsmath}
 \let\proof\relax
 \let\endproof\relax
 \usepackage{amsthm}
 \usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{fnpct}
+\usepackage{enumitem}
 \usepackage{dirtree}
 \usepackage{listings}
-\lstset{language=Java,columns=flexible,numbers=left}
+\lstset{
+language=Java,
+columns=flexible,
+numbers=left,
+xleftmargin=3em,
+frame=single,
+framexleftmargin=3em,
+keywordstyle=\rmfamily,
+moredelim=[s][\rmfamily]{/*@}{*/},
+moredelim=[l][\rmfamily]{//@}}
 
 \makeatletter
 \DeclareRobustCommand*{\lyxarrow}{%
@@ -49,21 +58,22 @@ Software libraries are the building blocks of many programs that run on the devi
 
 This tutorial intends to show how we take an existing Java program that is part of the Java standard library, and study it closely to increase our understanding of it. If we are only interested in showing the presence of an issue with the program, e.g.~that it lacks certain functionality, it suffices to show an example run which behaves unexpectedly. But to reach the conclusion that no unexpected behavior ever results from running the program, first requires a precise specification of what behavior one expects, and further requires a convincing argument that all possible executions of the program exhibit that behavior.
 
-We take a formal approach to both specification and reasoning about programs, allowing us to increase the reliability of our reached conclusions. In particular, the specifications we write are expressed in the Java Modeling Language (JML), and our reasoning is tool-supported and partially automated by KeY. To the best of the authors' knowledge, KeY is the only tool that supports enough features of the Java programming language for reasoning about realistic programs, of which its run-time behavior crucially depends on the presence of such features, such as: dynamic object creation, exception handling, integer arithmetic with overflow, \texttt{for} and \texttt{foreach} loops with early returns, nested classes (both static and non-static), inheritance, polymorphism, erased generics, etc.
+We take a formal approach to both specification and reasoning about program executions, allowing us to increase the reliability of our reached conclusions. In particular, the specifications we write are expressed in the Java Modeling Language (JML), and our reasoning is tool-supported and partially automated by KeY. To the best of the authors' knowledge, KeY is the only tool that supports enough features of the Java programming language for reasoning about real programs, of which its run-time behavior crucially depends on the presence of features such as: dynamic object creation, exception handling, integer arithmetic with overflow, \texttt{for} and \texttt{foreach} loops with early returns, nested classes (both static and non-static), inheritance, polymorphism, erased generics, etc.
 
-As a demonstration of applying KeY to real software, we will focus on Java's \texttt{LinkedList} class for two reasons. First, a (doubly-)linked list is a well-known basic data structure for storing and maintaining unbounded data, and has many applications: for example, in Java's secure sockets implementation. Second, it has turned out that there is a 20-year-old bug lurking in its program, that might lead to in-depth security issues on large memory systems, caused by the overflow of a field that caches the length of the list \cite{hiep2019verifying}. Our specification and verification effort will be aimed at establishing the absence of this bug from a repaired program.
+As a demonstration of applying KeY to state-of-the-art, real software, we will focus on Java's \texttt{LinkedList} class, for two reasons. First, a (doubly-)linked list is a well-known basic data structure for storing and maintaining unbounded data, and has many applications: for example, in Java's secure sockets implementation. Second, it has turned out that there is a 20-year-old bug lurking in its program, that might lead to security-in-depth issues on large memory systems, caused by the overflow of a field that caches the length of the list \cite{hiep2019verifying}. Our specification and verification effort will be aimed at establishing the absence of this bug from a repaired program.
 
-In this tutorial, we see how to set-up a project and configure the KeY tool, and outline the general workflow that we follow (Section~\ref{sec:setup}). We then study the source code of the \texttt{LinkedList}, and get an intuitive grasp of its essential structure: how the various instances of this class look like, and how some essential methods operate on these instances (Section~\ref{sec:linkedlist}). A basic introduction to the KeY system is given, on which the rest of the tutorial builds (Section~\ref{sec:background}).
+This article is mainly based on the results as described in another closely related paper \cite{hiep2019verifying}. That paper provides more details on the specification and verification effort of the linked list class as a whole, including multiple test cases which trigger the overflow error, and the future verification challenges.
 
-To keep this presentation reasonably short, we focus only on the methods \texttt{add} and \texttt{remove}. We shall formulate, based on previous intuition, a \emph{class invariant} in JML that expresses a property that is true of every instance and must remain true after executing our methods (Section~\ref{sec:class-invariant}). We use the invariant in formulating a \emph{method contract} for the \texttt{add} method that describes its expected behavior and we verify that its implementation is correct (Section~\ref{sec:add}).
+\paragraph{Contents}
+We see how to set-up a project and configure the KeY tool (Section~\ref{sec:setup}). We then study the source code of the \texttt{LinkedList} to gain intuitive understanding of its structure: how the instances look like, and how the methods operate (Section~\ref{sec:linkedlist}). A basic introduction to the KeY system is given, on which the rest of the tutorial is based (Section~\ref{sec:background}).
 
-The difficulty level increases after we specify the \texttt{remove} method (Section~\ref{sec:remove}), as its verification requires more work than before. A lemma is needed, one that follows from the invariant (Section~\ref{sec:acyclicity}). We study the deeper methods that \texttt{remove} depends on first (Section~\ref{sec:unlinking}), and use \emph{loop invariants} to prove the correctness of \texttt{remove} later (Section~\ref{sec:loop-invariant}). We conclude with some methods of \texttt{LinkedList} left as exercise to the reader (Section~\ref{sec:conclusion}): finding their specifications and proving them correct is not trivial, but done in a similar way.
+To keep this presentation reasonably short, we further focus on the methods \texttt{add} and \texttt{remove}. We formulate, based on previous intuition, a \emph{class invariant} in JML that expresses a property that is true of every instance (Section~\ref{sec:class-invariant}). We then formulate a \emph{method contract} for the \texttt{add} method that describes its expected behavior and we verify that its implementation is correct (Section~\ref{sec:add}).
 
-This tutorial is mainly based on the results as described in a paper \cite{hiep2019verifying} by the same authors, yet to appear. That paper provides more details on the specification and verification effort of the linked list class as a whole, including multiple test cases which trigger the overflow error, and the future verification challenges.
+The difficulty level increases after we specify the \texttt{remove} method (Section~\ref{sec:remove}), as its verification requires more work than before. A lemma is needed, one that follows from the invariant (Section~\ref{sec:acyclicity}). We study a deeper method that \texttt{remove} depends on first (Section~\ref{sec:unlinking}), and use \emph{loop invariants} to prove the correctness of \texttt{remove} later (Section~\ref{sec:loop-invariant}). We conclude with some methods of \texttt{LinkedList} left as exercise to the reader (Section~\ref{sec:conclusion}): finding their specifications and proving them correct is not trivial, but done in a similar way.
 
 \section{Set-up}\label{sec:setup}
 
-\begin{table}[]
+\begin{table}
 \dirtree{%
 .1 linkedlist-tutorial.
 .2 key-2.6.3.zip.
@@ -80,19 +90,40 @@ This tutorial is mainly based on the results as described in a paper \cite{hiep2
 .3 ....
 }
 \medskip
-    \caption{Directory structure of project files. The \texttt{src} directory contains the Java classes we want to specify and verify. The \texttt{jre} directory contains stub files, with specifications of unrelated classes. The \texttt{LinkedList.solution} file is the source file we end up with after following this tutorial. The \texttt{proof} directory contains the completed proofs of the solution.}
+    \caption{Directory structure of project files. The \texttt{src} directory contains the Java classes we want to specify and verify. The \texttt{jre} directory contains stub files, with specifications of unrelated classes. The \texttt{LinkedList.solution} file is the source file we end up with after following this tutorial. The \texttt{proof} directory contains the completed proofs.}
     \label{tab:directory-structure}
 \end{table}
 
 First we will set-up the project files needed to use KeY. The project files are available on-line: these can be downloaded and include the KeY software version that we use. ??? After unpacking the project files, we end up with the directory structure of Table~\ref{tab:directory-structure}.
 
-The original source file of \texttt{LinkedList.java} was obtained from OpenJDK version \texttt{jdk8-b132}. The original has been pre-processed: generic class parameters are removed, and all methods and nested classes irrelevant to this tutorial are removed. Both the removal of generics and the stub files in the \texttt{jre} folder were generated automatically, using the Eclipse extensions for KeY. Repeating these steps is not necessary here.
+The original source file of \texttt{LinkedList.java} was obtained from OpenJDK version \texttt{jdk8-b132}. The original has been pre-processed: generic class parameters are removed, and all methods and nested classes irrelevant to this tutorial are removed. Both the removal of generics and the stub files in the \texttt{jre} folder were generated automatically, using the Eclipse extensions for KeY. Repeating those steps is not necessary here.
 
 Over the course of next sections, we will insert code into the linked list: annotations to formally specify its behavior, and helper methods for presenting intermediary lemmas. The annotations are usual Java comments, and thus ignored when the file is read by a Java compiler. The helper methods introduce slight performance overhead (of calling a method that performs no operations, and immediately returning from it); it is immediately clear that these do not change the original behavior of the program.
 
 \subsection{KeY settings}
 
-\begin{table}[]
+\begin{table}
+    \begin{tabular}{l@{\hskip6pt}|@{\hskip6pt}l}
+    Max. rule applications & 1000 \\
+    Stop at & Default \\
+    Proof splitting & Delayed \\
+    Loop treatment & Invariant \\
+    Block treatment & Contract \\
+    Method treatment & Contract \\
+    Dependency contract & On \\
+    Query treatment & Off \\
+    Expand local queries & On \\
+    Arithmetic treatment & Basic \\
+    Quantifier treatment & No splits with progs. \\
+    \textbf{Class axiom rule} & \textbf{Off} \\
+    Auto induction & Off \\
+    User-defined taclets & All off
+    \end{tabular}
+    \medskip
+    \caption{The proof search strategy settings we use.}
+    \label{tab:proof-strategy}
+\end{table}
+\begin{table}
     \begin{tabular}{l@{\hskip6pt}|@{\hskip6pt}l}
     \textbf{JavaCard} & \textbf{Off} \\
     Strings & On \\
@@ -113,80 +144,99 @@ Over the course of next sections, we will insert code into the linked list: anno
     Well-definedness Operator & L
     \end{tabular}
     \medskip
-    \caption{The taclet options we use. The boldface options are changed from the default. The JavaCard setting is changed from On to Off, the Int Rules settings is changed from ignoring overflow to Java semantics, and the More Sequence Rules is changed from Off to On.}
+    \caption{The taclet options we use.}
     \label{tab:taclet-options}
 \end{table}
 
 To produce proofs in KeY, the first step is to set-up KeY's taclet base to make use of particular groups of rules that correctly model Java's integer overflow semantics. This has to be done only once, as these taclet settings are stored per computer user.
 
-Sometimes, KeY overwrites or corrupts these settings if different versions are used. To ensure KeY starts in a fresh state, one can remove the \texttt{.key} directory from the user's home director, and clean out preferences from the \texttt{.java/.userPrefs} directory by deleting the \texttt{de/uka/ilkd/key} hierarchy containing \texttt{prefs.xml} files\footnote{On Windows, the preferences are instead stored in the Windows Registry. Use the \texttt{regedit} tool and clean out under \texttt{HKEY\_CURRENT\_USER\bs Software\bs JavaSoft\bs Prefs} or \texttt{HKEY\_CURRENT\_USER\bs Software\bs Wow6432Node\bs JavaSoft\bs Prefs} the same hierarchy. On Mac OS, open a terminal, change directory to \texttt{\textasciitilde/Library/Preferences} and delete \texttt{de.uka.ilkd.plist}}.
+Sometimes, KeY overwrites or corrupts these settings if different versions are used. To ensure KeY starts in a fresh state, one can remove the \texttt{.key} directory from the user's home directory, and clean out preferences from the \texttt{.java/.userPrefs} directory by deleting the \texttt{de/uka/ilkd/key} hierarchy containing \texttt{prefs.xml} files\footnote{On Windows, the preferences are instead stored in the Windows Registry. Use the \texttt{regedit} tool and clean out under \texttt{HKEY\_CURRENT\_USER\bs Software\bs JavaSoft\bs Prefs} or \texttt{HKEY\_CURRENT\_USER\bs Software\bs Wow6432Node\bs JavaSoft\bs Prefs} the same hierarchy. On Mac OS, open a terminal, change directory to \texttt{\textasciitilde/Library/Preferences} and delete \texttt{de.uka.ilkd.plist}}.
 
-Now start up KeY, and the example selection screen appears (if not, selecting File\lyxarrow Load Example opens the same screen). Load any example, to enter proof mode. Select Options\lyxarrow Taclet Options, and configure the options as in Table~\ref{tab:taclet-options}.
+Now start up KeY, and the example selection screen appears (if not, selecting File\lyxarrow Load Example opens the same screen). Load any example, to enter proof mode. 
+First, we set-up a proof strategy. On the right side of the window, change the settings in the Proof Search Strategy tab to match those of Table~\ref{tab:proof-strategy}. Then, select Options\lyxarrow Taclet Options, and configure the options as in Table~\ref{tab:taclet-options}.
 
-After setting these taclet options, they become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a contract selection window opens up, showing a class hierarchy and its methods. A method is not shown when no specifications for it are written. After following the examples below, more method contracts can be selected in this window.
-
-\subsection{Workflow}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=272pt]{figures/workflow.eps}
-    \caption{The workflow for our verification process.}
-    \label{fig:workflow}
-\end{figure}
-
-We start by analyzing the source code, to gain an intuitive understanding of the linked list class. From that we formalize a specification (in JML). After formalizing the specification, we attempt to verify its methods (using KeY). Our attempt could fail because the specification is not sufficiently detailed: we refine the specification. Another reason for failure to verify is that the source code contains an error: in this case, we can demonstrate the unexpected behavior by writing a test case. The test case then shows there is a run in which the linked list behaves unexpectedly. This leads to a revision of the source code to fix the error. Now, the specification has to be reviewed and the verification attempt can continue. We are successful once the verification attempt is completed with a formal proof. This workflow is depicted as a flow diagram in Fig.~\ref{fig:workflow}.
+The taclet options become effective after loading the next problem. We do that now: the main proof file \texttt{LinkedList.key} can be loaded, and a Proof Management window opens up, showing a class hierarchy and its methods. A method is not shown when no specifications for it are written. After giving specifications, what we will do below, more methods can be selected in this window.
 
 \section{\texttt{java.util.LinkedList}}\label{sec:linkedlist}
 
-In this section we walk through part of the source code of the \texttt{LinkedList} class. Over the course of this tutorial, we will edit this file to add annotations at the appropriate places.
+In this section we walk through part of the source code of Java's linked list: see the \texttt{LinkedList.java} file. Over the course of this tutorial, we add annotations at the appropriate places. We finally obtain the \texttt{LinkedList.solution} file.
 
-\lstinputlisting[linerange=1-10,frame=single,caption={The \texttt{LinkedList} class fields and constructor.},captionpos=b,label={lst:linkedlist}]{src/java/util/LinkedList.java}
+\lstinputlisting[linerange=1-10,caption={The \texttt{LinkedList} class fields and constructor (begin of file).},captionpos=b,label={lst:linkedlist}]{src/java/util/LinkedList.java}
 
-The \texttt{LinkedList} class has three attributes: a \texttt{size} field, which stores a cached number of elements in the list, and two
-fields that store a reference to the first and last \texttt{Node} (see Listing~\ref{lst:linkedlist}).
+Our \texttt{LinkedList} class has three attributes and a constructor (Listing~\ref{lst:linkedlist}). A \texttt{size} field, which stores a cached number of elements in the list, and two fields that store a reference to the first and last \texttt{Node}. The public constructor contains no statements: thus it initializes size to zero, and first and last to \texttt{null}.
 
-The linked list fields are declared transient and package private. The transient flag is used to control serialization and deserialization: but that is out of scope of our verification effort. The reason the fields are declared package private seem to prevent generating accessor methods by the Java compiler. However, in practice, the fields are treated as they were private.
+The linked list fields are declared transient and package private. The transient flag is not relevant to our verification effort. The reason the fields are declared package private seems to prevent generating accessor methods by the Java compiler. However, in practice, the fields are treated as if they were private.
 
-The \texttt{Node} class is defined as a private static nested class to represent the containers of items stored in the list (see Listing~\ref{lst:linkedlist-node}). A static nested private class behaves like a top-level class, except that it is not visible outside the enclosing class. The nodes are doubly-linked, that is, each node is connected to its preceding node (through field \texttt{prev}) and succeeding node (through field \texttt{next}). These fields contain \texttt{null} in case no preceding or succeeding node exists. The data itself is contained in the \texttt{item} field of a node.
+\lstinputlisting[firstnumber=65,linerange=65-77,caption={The \texttt{Node} nested class fields and constructor (end of file).},captionpos=b,label={lst:linkedlist-node}]{src/java/util/LinkedList.java}
 
-\lstinputlisting[firstnumber=65,linerange=65-75,frame=single,caption={The \texttt{Node} nested class fields and constructor.},captionpos=b,label={lst:linkedlist-node}]{src/java/util/LinkedList.java}
+The \texttt{Node} class is defined as a private static nested class to represent the containers of items stored in the list (Listing~\ref{lst:linkedlist-node}). A static nested private class behaves like a top-level class, except that it is not visible outside the enclosing class. The nodes are doubly-linked, that is, each node is connected to its preceding node (through field \texttt{prev}) and succeeding node (through field \texttt{next}). These fields contain \texttt{null} in case no preceding or succeeding node exists. The data itself is contained in the \texttt{item} field of a node.
 
+\lstinputlisting[firstnumber=39,linerange=39-43,caption={The method \texttt{add}.},captionpos=b,label={lst:linkedlist-add}]{src/java/util/LinkedList.java}
 
-Constructor, add method, remove method
+The method \texttt{add} for adding elements to the list, takes one argument, the item to add (Listing~\ref{lst:linkedlist-add}). The informal Java documentation for \texttt{Collection} specifies it always returns \texttt{true}. The implementation immediately calls an internal method: \texttt{linkLast}.
+
+\lstinputlisting[firstnumber=45,linerange=45-63,caption={The method \texttt{remove}.},captionpos=b,label={lst:linkedlist-remove}]{src/java/util/LinkedList.java}
+
+The method \texttt{remove} for removing elements, also takes one argument, the item to remove (Listing~\ref{lst:linkedlist-remove}). If that item was present in the list, then its first occurrence is removed and \texttt{true} is returned; otherwise, if the item was not present, then the list is not changed and \texttt{false} is returned.
+
+Presence of the item depends on whether the argument of the remove method is \texttt{null} or not. If the argument is \texttt{null}, then it searches for the first occurrence of a \texttt{null} item in the list. Otherwise, it uses the \texttt{equals} method, that every \texttt{Object} in Java has, to determine the equality of the argument with respect to the contents of the list. The first occurrence of an item that is considered equal by the argument is then returned. In both cases, the source code walks over the linked list, from the first node until it has reached the end. In the case that the node was found that contains the first occurrence of the argument, an internal method is called: \texttt{unlink}, and afterwards \texttt{true} is returned.
+
+Observe that the linked list is not modified if \texttt{unlink} is not called. Although not immediately obvious, this requires that the \texttt{equals} method of every object cannot modify our current linked list, for the duration of the call to \texttt{remove}. When the \texttt{remove} method is called with an item that is not contained in the list, either loop eventually exits, and \texttt{false} is returned.
+
+\lstinputlisting[firstnumber=11,linerange=11-18,caption={The internal method \texttt{linkLast}.},captionpos=b,label={lst:linkedlist-linkLast}]{src/java/util/LinkedList.java}
+
+The internal method \texttt{linkLast} changes the structure of the linked list (Listing~\ref{lst:linkedlist-linkLast}). After performing this method, a new node has been created, and the \texttt{last} field of the linked list now points to it. To maintain structural integrity, also other fields change: if the linked list were empty, the \texttt{first} field now points to the new, and only, node. If the linked list was not empty, then the new last node is also reachable via the former last node's \texttt{next} field. It is always the case that all items of a linked list are reachable through the \texttt{first} field, then following the \texttt{next} fields. The opposite is also the case: all items are reachable through the \texttt{last} field, then following the \texttt{prev} fields.
+
+\lstinputlisting[firstnumber=20,linerange=20-37,caption={The internal method \texttt{unlink}.},captionpos=b,label={lst:linkedlist-unlink}]{src/java/util/LinkedList.java}
+
+The internal method \texttt{unlink} is among the most complex methods that alters the structure of a linked list (Listing~\ref{lst:linkedlist-unlink}). The method is used only when the linked list is not empty. Its argument is a node, necessarily one that belongs to the linked list. We first store the fields of the node in local variables: the old item, and next and previous node references.
+
+After the method returns, the argument fields are all cleared, presumably to help the garbage collector. However, other fields also change: if the arguments is the first node, the \texttt{first} field is updated; if argument is the last node, the \texttt{last} field is updated. The predecessor or successor fields \texttt{next} and \texttt{prev} of other nodes are changed to maintain the integrity of the linked list: the successor of the unlinked node becomes the successor of its predecessor, and the predecessor of the unlinked node becomes the predecessor of its successor.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/linkedlist1.eps}
+  \caption{Three example linked lists: empty, with a chain of one node, and with a chain of two nodes. Items themselves are not shown.}
+  \label{fig:linkedlist}
+\end{figure}
 
 \subsection{Expected behavior}
-Pictures of instances
 
-Pictures of adding
+We draw pictures of linked list instances to understand better how the structure looks like over time. In Fig.~\ref{fig:linkedlist}, we see three linked list instances. The left-most linked list is an object without any items: its \texttt{size} is zero. When we perform \texttt{add} with some item (it is not important what item), a new node is created and the first and last pointers are changed to point to the new node. Now the \texttt{prev} and \texttt{next} fields of the new node are \texttt{null}, indicating that there is no other node before and there is no other node after it. Also, the \texttt{size} field is increased by one. Adding another item further creates another node, that is linked up to the previous node properly; the \texttt{last} field is then pointed to the newly created node.
+In the third instance, suppose we would perform \texttt{remove} with the first item. We would then have to unlink the node, see the code of \texttt{unlink} in Listing~\ref{lst:linkedlist-unlink}: the new value of \texttt{first} becomes the value of \texttt{next} which is the last node, and the value of \texttt{prev} of the succeeding node becomes the value of \texttt{prev} of the node that is unlinked, which is \texttt{null}. We thus end up in a similar situation as the second instance (except for the item that may be different). Removing the last item brings us back into the situation depicted by the first instance.
 
-Pictures of removing
+An important aspect of the implementation of our linked list is the cached \texttt{size} field: it represents the number of nodes that form a chain between \texttt{first} and \texttt{last}. It turns out an overflow may happen under certain conditions \cite{hiep2019verifying}. Consider two facts: Java integer primitives are stored in signed 32-bit registers, and it is possible to create a chain that is larger than the maximum positive value that can be stored in such fields, $2^{31}-1$. Now, the cached size and the actual size no longer correspond. In the methods we have seen above, this seems to be no issue. But another method of the linked list may be used to demonstrate the key problem: \texttt{toArray}. The intention of \texttt{toArray} is to give back an array containing all the items of the list (see Listing~\ref{lst:linkedlist-toArray}). There are two problems: after the overflow has occurred and the \texttt{size} is negative, the \texttt{toArray} throws an unexpected \texttt{NegativeArraySizeException}. But, even worse, after adding more items that brings the size back to a positive integer, e.g. adding $2^{32}+1$ items in total, the returned array is of the wrong size and does not contain \emph{all} items of the list: without throwing an exception!
 
-\subsection{Bugfix}
-Short description of bug
+\lstinputlisting[numbers=none,caption={The method \texttt{toArray} has unexpected behavior.},captionpos=b,label={lst:linkedlist-toArray}]{figures/bug.java}
 
-Short fix to problem (checkSize)
+\subsection{Verification goal}
+
+We thus revise the source code and add a method that implements an overflow check (see Listing~\ref{lst:linkedlist-fix}). The intention is that the overflow is signalled before it occurs, by throwing an exception. This ensures that the integrity of the linked list is always maintained. We modify the \texttt{add} method, and perform a call to this \texttt{checkSize()} method before invoking \texttt{linkLast}.
+
+\lstinputlisting[numbers=none,caption={A new internal method \texttt{checkSize}.},captionpos=b,label={lst:linkedlist-fix}]{figures/fix.java}
+
+Our goal is to verify that the overflow no longer happens in the revised linked list: that the actual number of nodes and the cached size are always the same.
 
 \section{Background}\label{sec:background}
 
-The \emph{KeY system} consists of three main components: a multi-sorted classical first-order sequent calculus with a large rule set, a translator of annotated Java programs into proof obligations, and an interactive tool for creating proofs.
+For formally specifying and verifying our linked list it is necessary to have basic knowledge of the system we are using: KeY. The main reference work on the KeY system is the KeY book \cite{KeYbook}. The KeY system consists of three main components: a proof system, a translator of Java programs annotated with JML into proof obligations, and an interactive tool for constructing proofs.
 
-\paragraph{Dynamic logic}
 The logic underlying KeY is \emph{JavaDL}, a program logic that directly incorporates Java program fragments.
-The program logic is a multi-modal logic: $\langle P\rangle\varphi$ expresses that executing the program fragment $P$ definitely terminates and $\varphi$ holds in the final state; and $[P]\varphi$ expresses \emph{if} the program fragment $P$ terminates, \emph{then} $\varphi$ holds in the final state. The formula $\varphi\to\langle P\rangle\psi$ expresses that if $\varphi$ holds in the initial state, then execution of $P$ terminates in a state for which $\psi$ holds.  See Chapter 3 of~\cite{ahrendt2016deductive} for more detail of JavaDL's syntax and semantics.
+The program logic is a multi-modal logic: $\langle P\rangle\varphi$ expresses that executing the program fragment $P$ definitely terminates and $\varphi$ holds in the final state; and $[P]\varphi$ expresses \emph{if} the program fragment $P$ terminates, \emph{then} $\varphi$ holds in the final state. The formula $\varphi\to\langle P\rangle\psi$ expresses that if $\varphi$ holds in the initial state, then execution of $P$ terminates in a state for which $\psi$ holds.  See Chapter 3 of~\cite{KeYbook} for more detail on JavaDL.
 
 The program logic distinguishes \emph{program variables} from \emph{logical variables}: the value of a program variable can be changed over the course of executing a program, whereas a logical variable always has the same value. As logical variables can never be modified by a program fragment, they are used as so-called \emph{freeze variables}.
 
-The proof system that KeY uses to establish validity of formulas is given as a sequent calculus. A sequent $\varphi_1,\ldots,\varphi_n \Rightarrow \psi_1,\ldots,\psi_m$ consists of $n$ antecendents and $m$ consequents, all formulas of JavaDL, with the usual interpretation: $\varphi_1,\ldots,\varphi_n \Rightarrow \psi_1,\ldots,\psi_m$ means that if all $\varphi_i$ on the left are true, then at least one $\psi_j$ on the right is true. Next to the rules for classical first-order logic, the proof system also consists of a large number of other rules. The large rule set is given by means of lightweight tactics (called taclets \cite{beckert2004taclets}) that perform modifications on the sequent one is proving: e.g.~spawn new branches in the proof tree, substitute variables, rewrite terms, or close a branch. There are approximately 1750 rules that implement Java program semantics and allow for symbolic execution, and implement the theories of many sorts: integers, sequences, heaps, location sets, and others.
+The proof system that KeY uses to establish validity of formulas is given as a sequent calculus. A sequent $\varphi_1,\ldots,\varphi_n \Rightarrow \psi_1,\ldots,\psi_m$ consists of $n$ antecendents and $m$ consequents, all formulas of JavaDL, with the usual interpretation: $\varphi_1,\ldots,\varphi_n \Rightarrow \psi_1,\ldots,\psi_m$ means that if all $\varphi_i$ on the left are true, then at least one $\psi_j$ on the right is true. Derivability of a sequent in the proof system is as usual by means of deduction rules, assembled into a proof tree. Next to the deduction rules for classical first-order logic, the proof system also consists of a large number of other rules.
 
-Of particular interest to us are rules concerning \emph{updates} and \emph{heaps}. There are rules that transform modalities with program fragments into so-called update modalities. Updates always terminate and they assign JavaDL terms to program variables. As such, updates cannot assign program variables to side-effectful expressions. Given a formula $\varphi$, then $\{\mathtt{x}_1\coloneqq t_1||\ldots||\mathtt{x}_n\coloneqq t_n\}\varphi$ is a formula where in parallel $\mathtt{x}_i$ are updated to $t_i$.
+Deduction rules are given by means of lightweight tactics (called taclets~\cite{beckert2004taclets}) that perform modifications on the sequent one is proving: e.g.~split branches in the proof tree, substitute variables, rewrite terms, or close a branch. There are approximately 1750 rules that implement symbolic execution for Java program fragments, and implement the theories of many sorts: integers, sequences, heaps, location sets, and others.
 
-\paragraph{Data types}
-There is a hidden and implicit program variable in JavaDL that is the \texttt{heap} of heap sort. The heap is used to model the storage of objects, that is, the value of fields associated to object references. From a practical perspective, updates of program variables other than the heap can be thought of as stack variables. Such program variables can \emph{refer} to objects on the heap. Heap updates are tracked by updating the \texttt{heap} program variable. Heap updates and program variable updates easily form complex expressions, where both kinds of updates can be intertwined: we do not show heap update expressions here, but see Section 2.4.3 and Section 6.4 of \cite{ahrendt2016deductive}.
+Of particular interest to us are rules concerning \emph{updates} and \emph{heaps}. There are rules that transform modalities with program fragments into so-called update modalities. Updates always terminate and they assign JavaDL terms to program variables. As such, updates cannot assign program variables to side-effectful expressions. Given a formula $\varphi$, then $\{\mathtt{x}_1\coloneqq t_1||\ldots||\mathtt{x}_n\coloneqq t_n\}\varphi$ is a formula where in parallel $\mathtt{x}_i$ are updated to $t_i$. Updates are simplified by substitution.
+
+There is a hidden and implicit program variable in JavaDL that is the \texttt{heap} of heap sort. The heap is used to model the storage of objects, that is, the value of fields associated to object references. From a practical perspective, updates of program variables other than the heap can be thought of as stack variables. Such program variables can \emph{refer} to objects on the heap. Heap updates are tracked by updating the \texttt{heap} program variable. Heap updates and program variable updates easily form complex expressions, where both kinds of updates can be intertwined. See Section 2.4.3 and Section 6.4 of \cite{KeYbook}.
 
 Next to the built-in sorts of integers, sequences, heaps, and location sets, are Java types. Each Java type has its own sort in JavaDL that models (infinitely many) references to objects, including the \texttt{\textbf{null}} reference. References can be explicitly coerced between sorts, to model subtypes: e.g. every reference can be coerced to a reference of sort \texttt{Object}. A heap assigns values to the fields of a non-null reference.
 Object references are global, but the creation status of each object is a special Boolean field \texttt{<created>} local to each heap. An object becomes created in some heap by taking a fresh reference, that has no value yet assigned to its creation field in that heap, and setting that field to \texttt{\textbf{true}}. Fields can only be assigned to non-null object references for which their created field is true. A heap is \emph{well-formed} if a finite number of references have \texttt{<created>} set to true.
 
-\paragraph{JML}
 \begin{figure}
    \centering
    \includegraphics{figures/method_heap.eps}
@@ -194,147 +244,98 @@ Object references are global, but the creation status of each object is a specia
    \label{fig:method_heap}
 \end{figure}
 
-An important aspect of Java programs are method calls. There are three main issues: calling a method may introduce new program variables that overshadow older program variables, calling a method may change the heap, and it is possible to call a method on an object for which its exact type is only known at run-time.
+An important aspect of Java programs are method calls. There are three main issues: calling a method may introduce new program variables that shadow older program variables, calling a method may change the heap, and it is possible to call a method on an object for which its exact type is only known at run-time.
 
-To solve the issue of overshadowing older program variables, KeY uses \emph{method frames}; before a method frame is created, it is ensured that old program variables and new program variables do not collide by renaming the program variables of a method body. Since the \texttt{\textbf{this}} keyword cannot be renamed, the method frame provides a context in which program fragments evaluates \texttt{\textbf{this}} references; it also tracks where the method return value must be placed. The heap supplied to the method call is the heap as it was after the statements that occurred before the method call, and statements following a method call are performed using the heap as it is after the method call completes: there are rules for `threading' the heap through a method call, see Figure \ref{fig:method_heap}. There are roughly two ways of treating method calls: unfolding their method body wrapped in a method frame, or using its method contract.
+To solve the issue of overshadowing older program variables, KeY uses \emph{method frames}; before a method frame is created, it is ensured that old program variables and new program variables do not collide by renaming the program variables of a method body. Since the \texttt{\textbf{this}} keyword cannot be renamed, the method frame provides a context in which program fragments evaluates \texttt{\textbf{this}} references; it also tracks where the method return value must be placed.
 
-Method contracts and general annotations of Java programs are specified in terms of a subset of the Java Modeling Language (JML)~\cite{leavens2013jml} but with KeY-specific extensions, see \cite{huisman2014jml} or Chapter 7 of~\cite{ahrendt2016deductive}. This allows the use of KeY for post-hoc verification: after a program has been developed and validated, classes and their members are annotated. In particular, each method is annotated by a contract that specifies pre- and post-conditions. In this approach, methods are the central point of our verification effort. Its annotations determine corresponding correctness formulas in JavaDL: if they are verified, then the corresponding method is correct with respect to its method contract. Consequently, method contracts can be reused in other proofs involving program fragments that call such method.
+The implicit heap variable is also stored in the method frame, referred to as the before heap and after heap. Statements following a method call are performed using the heap as it is after the method call completes: there are rules for `threading' the heap through a method call, see Figure \ref{fig:method_heap}. There are roughly two ways of treating method calls: unfolding their method body wrapped in a method frame, or using its method contract.
 
-Other than method contracts, JML also allows annotations of ghost fields, model fields and model methods. Ghost fields are virtual fields that become part of the modelled state of an object on the heap, but are never present when actually executing a Java program. Like normal fields, the value of ghost fields are assigned a default value at object initialization, and can be explicitly changed by JML \texttt{set} annotations. These annotations occur anywhere in method bodies where otherwise a normal statement can be expected. Model fields are introduced as function symbols, and several axioms are added that allow the definition of model fields to be substituted during proof. An example model field is a \emph{class invariant}, which is implicitly assumed to hold of the state of an object between method invocations. More general than model fields are model methods: every model field is implemented as a specific model method. Other annotations, such as loop invariants, are also added to the method body: these are automatically applied by KeY's symbolic execution.
+The issue of run-time types is solved using method contracts. Method contracts and other annotations of Java programs are specified in terms of the Java Modeling Language (see~\cite{leavens2013jml}) but with KeY-specific extensions (see Chapter 7 of~\cite{KeYbook}). Each method is annotated by a contract that specifies pre- and post-conditions: all implementations of this method should adhere to the contract. The contract determine corresponding correctness formulas in JavaDL: if they are verified, then the corresponding method is correct with respect to its method contract. Consequently, method contracts can be reused in other proofs involving program fragments that call such method.
 
-Java programs annotated with JML are entered into the KeY system and the verification of their correctness formulas begins, by generating one or more \emph{proof obligations} for each correctness formula. Using the interactive tool, a proof tree is constructed by applying rules until the branches of the tree are closed. Each rule application may result in zero or more branches: in the case of multiple branches, every branch needs to be closed. The tool also provides automation, that automatically applies proof rules using heuristics. This speeds up the verification effort considerably. Finally, after all proof obligations appear as the conclusion of a closed proof tree, the verification effort is done. The proof trees can be stored in a file and reloaded and inspected later.
+JML also allows annotations of ghost fields and model fields. Ghost fields are virtual fields that become part of the modelled state of an object on the heap, but are never present when actually executing a Java program. Like normal fields, the value of ghost fields are assigned a default value at object initialization, and can be explicitly changed by JML \texttt{set} annotations. These annotations occur anywhere in method bodies where otherwise a normal statement can be expected. Model fields are introduced as function symbols, and several axioms are added that allow the definition of model fields to be substituted during proof. An example model field is a \emph{class invariant}, which is implicitly assumed to hold of the state of an object between method invocations.
+
+Java programs annotated with JML are entered into the KeY system and the verification begins by generating one or more \emph{proof obligations}. Using the interactive tool, a proof tree is constructed by applying rules until the branches of the tree are closed. Each rule application may result in zero or more branches: in the case of multiple branches, every branch needs to be closed. The tool also provides automation, that automatically applies proof rules using heuristics. This speeds up the verification effort considerably. Finally, after all proof obligations appear as the conclusion of a closed proof tree, the verification effort is done. The proof trees can be stored in a file and reloaded and inspected later.
 
 \section{Class invariant}\label{sec:class-invariant}
 
-Each linked list consists of a sequence of nodes. Sequences are finite, indexing of sequences starts at zero, and we write $\sigma[i]$ to mean the $i$th element of some sequence $\sigma$. A \emph{chain} is a sequence $\sigma$ of nodes of length $n>0$ such that: the \texttt{prev} reference of the first node $\sigma[0]$ is \texttt{null}, the \texttt{next} reference of the last node $\sigma[n-1]$ is \texttt{null}, the \texttt{prev} reference of node $\sigma[i]$ is node $\sigma[i-1]$ for every index $0<i<n$, and the \texttt{next} reference of node $\sigma[i]$ is node $\sigma[i+1]$ for every index $0\leq i < n-1$. The \texttt{first} and \texttt{last} references of a linked list are either both \texttt{null} to represent the \emph{empty} linked list, or there is some chain $\sigma$ between the \texttt{first} and \texttt{last} node, viz.~$\sigma[0]=\mathtt{first}$ and $\sigma[n-1]=\mathtt{last}$. Figure \ref{fig:linkedlist} shows example instances.
-Also see standard literature such as Knuth's \cite[Section 2.2.5]{knuth1997art}.
+We will now formalize a class invariant, thereby characterizing all linked list instances. The setting in which to do this is multi-sorted first-order logic. Our logic is presented in a simplified form, leaving out irrelevant details (such as the heap): the first-order logic as used by KeY is described in Chapter 2 of \cite{KeYbook}.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[scale=0.75]{figures/linkedlist1.eps}
-  \caption{Three example linked lists: empty, with a chain of one node, and with a chain of two nodes. Items themselves are not shown.}
-  \label{fig:linkedlist}
-\end{figure}
+Consider the following sorts, or type symbols: $\mathit{LinkedList}$ for a linked list, $\mathit{Node}$ for a node, $\mathit{Object}$ for objects and $\mathit{Null}$ for \texttt{null} values. We have a type hierarchy, where $\mathit{Null}$ is related to $\mathit{LinkedList}$ and $\mathit{Node}$, and $\mathit{LinkedList}$ and $\mathit{Node}$ are both related to $\mathit{Object}$. This means that any object of sort $\mathit{Null}$ is also an object of sort $\mathit{LinkedList}$ and $\mathit{Node}$. Moreover, every object that is a linked list is also of type $\mathit{Object}$, and similar for nodes.
+We have the following signature: $\mathit{first}: \mathit{LinkedList}\to \mathit{Node}$ and $\mathit{last}: \mathit{LinkedList}\to \mathit{Node}$ for the \texttt{first} and \texttt{last} fields of linked lists, and $\mathit{prev}: \mathit{Node}\to \mathit{Node}$, $\mathit{item}: \mathit{Node}\to \mathit{Object}$, and $\mathit{next}: \mathit{Node}\to \mathit{Node}$ for the \texttt{prev}, \texttt{item} and \texttt{next} fields of nodes. Further, we assume there is exactly one object of $\mathit{Null}$ sort, which is the \texttt{null} constant, for which above functions are left undefined: \texttt{null} is a valid object of the \texttt{LinkedList} and \texttt{Node} Java types, but one may not access its fields.
 
-\subsection{Cached vs. real size}
-\subsection{Ghost node list}
-\subsection{Reference structure}
+We search for an axiomatization that characterizes linked lists. One can find these axioms by trial and error. We start listing some obvious axioms:
 
-\section{The constructor}\label{sec:constructor}
+\begin{enumerate}
+    \item $\forall x^\mathit{LinkedList}; (x \neq \mathtt{null} \to (\mathit{first}(x) \neq \mathtt{null} \leftrightarrow \mathit{last}(x) \neq \mathtt{null}))$\\
+    Every linked list instance either has both first and last set to \texttt{null}, or both point to some (possibly different) node.
+    \item $\forall x^\mathit{LinkedList}; (x \neq \mathtt{null} \to (\mathit{first}(x) \neq \mathtt{null} \to \mathit{prev}(\mathit{first}(x)) = \mathtt{null}))$\\
+    The predecessor of the first node of a linked list is set to \texttt{null}.
+    \item $\forall x^\mathit{LinkedList}; (x \neq \mathtt{null} \to (\mathit{last}(x) \neq \mathtt{null} \to \mathit{next}(\mathit{last}(x)) = \mathtt{null}))$\\
+    The successor of the last node of a linked list is set to \texttt{null}.
+    \item\label{item:axiom-pred} $\forall x^\mathit{Node}; (x \neq \mathtt{null} \to (\mathit{prev}(x) \neq \mathtt{null} \to \mathit{next}(\mathit{prev}(x)) = x))$\\
+    Every node that has a predecessor, must be the successor of that predecessor.
+    \item\label{item:axiom-succ} $\forall x^\mathit{Node}; (x \neq \mathtt{null} \to (\mathit{next}(x) \neq \mathtt{null} \to \mathit{prev}(\mathit{next}(x)) = x))$\\
+    Every node that has a successor, must be the predecessor of that successor.
+\end{enumerate}
 
-Select the constructor from the method selection screen.
+These axioms are not yet sufficient: consider a linked list, in which its first and last nodes are different and both have neither a predecessor nor a successor. This linked list should not occur: intuitively, we know that the nodes between first and last are all connected and should form a doubly-linked `chain'. Moreover, for every linked list, this chain is necessarily finite: one can traverse from first to last by following the next reference a finite number of times. This leads to some logical difficulties: it is not possible to characterize linked lists with this property directly in first-order logic. This follows from compactness: if our axioms have arbitrarily large finite models, it will also have infinite models \cite{benthem2001hol}.
 
-Strategy we use:
-max. rule applications 1000
-stop at: default
-proof splitting: delayed
-loop treatment: invariant
-block treatment: contract
-method treatment: contract
-dependency contract: on
-query treatment: off
-expand local queries: on
-arithmetic treatment: basic
-quantifier treatment: no splits with progs
-class axiom rule: off
-auto induction: off
-user-defined taclets: all off
+We extend our signature to include other sorts: sequences and integers. These sorts have their usual first-order theory, but we go beyond first-order logic and include a schematic rule to capture integer induction (see Section 2.4.2 of \cite{KeYbook}). Sequences (Chapter 5.2 of \cite{KeYbook}) have a non-negative integer length $n$, and consist of an element at each position $0\leq i<n$. We write $\sigma[i]$ to mean the $i$th element of sequence $\sigma$, and $\ell(\sigma)$ to mean its length $n$.
 
-Right click on the proof tree root node, and select "Hide non-interactive proofsteps" and "Hide closed subtrees".
+Intuitively, each linked list consists of a sequence of nodes between its first and last node. Let $\mathrm{instanceof}_\mathit{Node}: \mathrm{Object}$ be the built-in predicate that states that the object is not \texttt{null} and of sort $\mathit{Node}$. A \emph{chain} is a sequence $\sigma$ such that:
 
-Right click on open goal from the Proof window, select strategy macros, auto pilot, finish symbolic execution.
+\begin{enumerate}[label=(\alph*)]
+    \item $\forall i^\mathrm{int}; (0\leq i<\ell(\sigma)\to \mathrm{instanceof}_\mathit{Node}(\sigma[i]))$\\
+    All its elements are nodes and not \texttt{null}
+    \item $\forall i^\mathrm{int}; (0<i<\ell(\sigma)\to \mathit{prev}(\sigma[i]) = \sigma[i-1])$\\
+    The predecessor of node at position $i$ is the node at position $i-1$
+    \item $\forall i^\mathrm{int}: (0\leq i<\ell(\sigma)-1\to \mathit{next}(\sigma[i]) = \sigma[i+1])$\\
+    The successor of node at position $i$ is the node at position $i+1$
+\end{enumerate}
 
-Two branches remain: a normal execution (self != null), and a null reference (self = null). Right click on the proof tree, close provable goals below. Now one of the two branches is closed (the null reference branch). In the remaining goal, select the whole sequent, strategy macros, simplification, update simplification.
+Let $\phi(\sigma)$ denote the above property that $\sigma$ is a chain. If $\ell(\sigma)=0$ then $\phi(\sigma)$ is vacuously true: the empty sequence is thus a chain. We now describe properties $\psi_1(\sigma,x)$ and $\psi_2(\sigma,x)$ that relate a chain $\sigma$ to a linked list $x$. These denote the following intuitive properties: there is no first and last node and the chain is empty, or the chain is not empty and the first and last node are the first and last elements of the chain. \begin{equation*}
+\begin{split}
+\psi_1(\sigma,x) & \equiv (\ell(\sigma) = 0 \land \mathit{first}(x) = \mathit{last}(x) = \mathtt{null}) \\
+\psi_2(\sigma,x) & \equiv (\ell(\sigma) > 0 \land \mathit{first}(x) = \sigma[0] \land \mathit{last}(x) = \sigma[\ell(n)-1])
+\end{split}
+\end{equation*}
+\begin{enumerate}\setcounter{enumi}{5}
+    \item $\forall x^\mathit{LinkedList}; (x \neq \mathtt{null}\to \exists \sigma^\mathrm{sig}; (\phi(\sigma) \land (\psi_1(\sigma,x)\lor\psi_2(\sigma,x))))$\\
+    Every linked list necessitates the existence of a chain of either property
+\end{enumerate}
 
-In one of the consequents, we see a formula that is a conjunction of the post-condition of the constructor (that the node list is empty, \texttt{self.nodeList@heap[...] = seqEmpty}), the class invariant (\texttt{self.<inv>}), and that no exception occurred (\texttt{null = null}). Right click the formula and select strategy macros, propositional, propositional expansion (with splits). This generates three open goals, one for each conjunct.
+Further, we require that the size field of the linked list and the length of the chain are the same: this property is essential to our verification goal. The size field is modeled by the function $\mathit{size}: \mathit{LinkedList}\to \mathit{int}$, and we require its value (1) to equal the length of the chain, and (2) to be bounded by the maximum value stored in a 32-bit integer. In formulating above properties in JML, we skolemize the existential quantifier using a ghost variable: see Listing~\ref{lst:jml-class-invariant}.
 
-Right click the proof root, select strategy macros, close provable goals below. Only a single goal remains: that of the invariant.
+\lstinputlisting[numbers=none,caption={The class invariant of \texttt{LinkedList} expressed in JML.},captionpos=b,label={lst:jml-class-invariant}]{figures/class_invariant.java}
 
-Click the invariant and select the Class invariant rule. The invariant is expanded into a large conjunction, that we specified as class invariant, but with the updated heap distributed in. Select the resulting conjunction, and perform propositional expansion with splits. This generates 23 goals. Now select a node in the proof tree above these and close provable goals. All of them are automatically closed.
+The class invariant is implicitly required to hold for the \texttt{this} object when invoking methods on a linked list instance. In particular, for the constructor of the linked list, the class invariant needs to be established after it returns. In Listing~\ref{lst:jml-constructor}, we state that the constructor always constructs a linked list instance for which its chain is empty. The proof of the correctness follows easily: at construct time, its fields (including its ghost field) of the linked list instance are initialized with their default values. This means the size is zero, and the first and last references are \texttt{null}, and the ghost field is the empty sequence.
 
-Nodes: 1195
-Branches: 29
-Interactive steps: 1
+\lstinputlisting[numbers=none,caption={The method contract of the constructor of \texttt{LinkedList} expressed in JML.},captionpos=b,label={lst:jml-constructor}]{figures/constructor.java}
 
-Note that this method can also be proven correct fully automatically.
+There is a recording of an interactive session in KeY that demonstrates exactly what steps one may have to take to complete the correctness proofs of the proof obligations generated by KeY from the method contracts. For the constructor above, see \cite[0:23--0:53]{Bian2019addbranch}, where the relevant video material is between timestamps 0:23 and 0:53.
 
 \section{The \texttt{add} method}\label{sec:add}
 
-Open the proof manager (File, Proof Manager) and select checkSize. There are two contracts: we start with normal behavior.
+Due to the revision of the source code, the add method now calls \texttt{checkSize} first (see Listing~\ref{lst:linkedlist-fix}) to ensure that the size field does not overflow when we add another item. This means that the add method has two expected behaviors: the normal behavior when the length of the linked list is not yet at its maximum, and the exceptional behavior when the length of the linked list is at its maximum.
 
-Select the open goal in the proof window, auto pilot, finish symbolic execution. It generates two goals: if x is true and if x is false. Here x is the condition whether the maximum size of the list has been reached.
+In the normal case, we expect the \texttt{add} method to add the given argument as an item to the linked list. Thus the sequence of nodes must become larger. We can be specific in the position where we expect the item to be added: to the end of the list. The add method must return true in this case. In the exceptional case, we expect that an exception is thrown. These requirements are formalized in Listing~\ref{lst:jml-add-method}.
 
-In the first branch, x is true, perform update simplification only on the whole sequent\footnote{Bug in key: must do on whole sequent}. There is now a conjunction in the consequent, and we do propositiobnal expansion with splits on it. The remaining goal can be closed automatically.
+\lstinputlisting[numbers=none,caption={The \texttt{add} method with its method contract expressed in JML.},captionpos=b,label={lst:jml-add-method}]{figures/add_method.java}
 
-In the second branch, x is false, also perform update simplification only on the whole sequent. There is a formula in the consequent with three conjuncts: the class invariant, that no exception is thrown, and that no heap modification has happened. Apply propositional expansion with split on the formula: it generates two goals, that can be closed automatically by selecting close provable goals.
+Since the \texttt{add} method calls the deeper methods \texttt{checkSize} and \texttt{linkLast}, we may employ their method contracts when verifying this method. So, before we verify \texttt{add}, we will first specify and verify these methods.
 
-Nodes: 201
-Branches: 8
-Interactive steps: 0
+We expect \texttt{checkSize} to throw an exception if the length of the linked list is too large to add another element, and it returns normally otherwise: see Listing~\ref{lst:jml-check-method} for its specification. Verification of \texttt{checkSize} in both normal and exceptional cases is done automatically by KeY, as can be seen in \cite[0:54--1:24]{Bian2019addbranch}.
 
-Note that this method can also be proven correct fully automatically.
+\lstinputlisting[numbers=none,caption={The method contract in JML of the \texttt{checkSize} method.},captionpos=b,label={lst:jml-check-method}]{figures/check_method.java}
 
----
+For the \texttt{linkLast} method, we assume that the length of the linked list is strictly smaller than its maximum, so we can safely add another node without causing an overflow of the size field. When adding a new node, the resulting chain now is an extension of the previous chain, and additionally the class invariant holds afterwards---this is an implicit post-condition. Since we modify the chain, we need a \texttt{set} annotation that changes the ghost field.
 
-Open proof manager (Ctrl+M), select checkSize and the exception behavior contract. Apply strategy (green arrow button), and see that it can be closed fully automatically.
+\lstinputlisting[numbers=none,caption={The \texttt{linkLast} method with its method contract expressed in JML.},captionpos=b,label={lst:jml-linklast-method}]{figures/linklast_method.java}
 
-Nodes: 249
-Branches: 4
-Interactive steps: 0
-
----
-
-Open proof manager, select linkLast and the normal behavior contract.
-
-Select the open goal, and finish symbolic execution. It generates 8 goals. Select the root node in the proof tree, closing provable goals below. Only two goals remain: if x true and if x false, this corresponds to whether the last field was null (x true) or not (x false).
-
-In the first branch, x is true, we do update simplification only on the whole sequent. We first hide a formula in the antecedent (\texttt{e = null | e.<created> = true}), because that might generate too many branches, while the information it contains is not needed in the rest of the proof. Right click that formula, and select hide\_left. Now select the whole sequent and select propositional expansion with split: it generates 4 goals. Select close provable goals above them in the proof tree. Only one goal remains: that is to establish the class invariant after the method. Use the class invariant rule on the formula in the consequent: it generates a large conjunction. Use propositional expansion with split on the resulting goal; it generates 23 goals. Select close provable goals above them in the proof tree: all of the 23 goals can be closed automatically.
-
-In the second branch, x is false, is the same recepi as in the first branch. However, this time, not all 23 goals can be closed automatically: we remain with two open goals. The two goals correspond to the two properties that establish the links between the nodes.
-
-In the first remaining open goal (it is a complex rendition of nodeList[i].prev = nodeList[i - 1]), we apply the allRight rule and the impRight rule. This adds the left-hand side of the implication to the antecent of the sequent. Click on the self.nodeList@heap[...] sub expression and select "Apply rules automatically here". It generates a number of (not very intelligable) goals; these can all be closed automatically.
-
-In the second remaining open goal (it is a complex rendition of nodeList[i].next = nodeList[i + 1]), is fully analogous as the previous remaining open goal. However, also this time, not all goals automatically close. We remain with one open goal: (** intuitive comment the proof situation is as follows. We assume that there is an index i, such that nodeList[i] = last. But also, we assume that index i < nodeList.length - 1. But we know from the invariant, that i = nodeList.length - 1 for the last node. From this, we derive the contradiction. **). We expand the class invariant; propositional expansion with split. The empty branch can close automatically. We now also have in the antecedent that nodeList[nodeList.length - 1] = last. From the invariant, by quantifier instantiation (rule allLeft), we know that nodeList[i].next = nodeList[i + 1]. We perform impLeft on the resulting formula, generating two goals. One closes automatically, because it is a simple bounds check. Now, technically, we compare the two formulas: nodeList[i] = last, and the one resulting from the quantifier instantation: (Node)(nodeList[i]).next. The latter has a superflous cast: we remove it by applying the castedGetAny rule. Now we can equationally rewrite, by applying the rule applyEq on the resultant subformula. We then obtain self.last.next = (Node)nodeList[i + 1]. But we also know self.last.next = null; so by showing that (Node)nodeList[i + 1] != null, we are done. But that (Node)nodeList[i + 1] != null follows from the class invariant: nodeList[i + 1] instanceof Node. We apply quantifier instantiation (rule allLeft) with the term i + 1. Again, we apply impLeft and close one goal which is a simple bounds check. From the remaining part, we split the conjunction and narrow type on the formula that expresses nodeList[i + 1] != null. We apply the rule notLeft, and the goal can be closed after symmetry of equality.
-
-Nodes: 10,279
-Branches: 127
-Interactive steps: 21
-
----
-
-Open proof manager, select add, normal behavior.
-
-Select goal, and perform symbolic execution, and close provable goals. We have one remaining goal: it still contains a modality with a Java program fragment. We manually execute it by performing the rules: methodCallReturn, assignment, methodCallEmpty, tryEmpty, emptyModality. On the remaining whole sequent, apply update simplification only. Split the conjunction in the consequent: this generates 4 goals. We then close provable goals automatically, resulting in a complete proof.
-
-Nodes: 2,179
-Branches: 9
-Interactive steps: 5
-
----
-
-Open proof manager, select add, exceptional behavior. Apply strategy (green arrow button), and see that it can be closed fully automatically.
-
-Nodes: 217
-Branches: 6
-Interactive steps: 0
+The verification of this method is no longer fully automatic, see \cite[1:25--6:52]{Bian2019addbranch}. Observe that there are two different situations we have to deal with: either the linked list was empty, or it was not. If the linked list was empty, then \texttt{last} is \texttt{null}, and we not only set the \texttt{last} field but also the \texttt{first}. Otherwise, if the linked list was not empty, we update the former last node to set its \texttt{next} field. In the latter case, the challenge is to prove that the class invariant holds after these heap updates. The main insight is that the creation of a new node does not alias with any of the existing nodes, and that the modification of the \texttt{next} field only affects the old last node.
 
 \section{The \texttt{remove} method}\label{sec:remove}
 \section{Acyclicity}\label{sec:acyclicity}
-
-Open proof manager, select lemma\_acycliic. Finish symbolic execution. On the whole sequent, update simplification only. Propositional extension with split on consequent. Close provable goals on root. One remaining goal: the lemma we want to prove.
-
-Introduce quantifier (allRight). Propositional expansion without split. Introduce quantifier (allRight). Not right.
-
-Current goal:
-nodeList[j] = nodeList[i], ..., self.<inv> => i <= -1, i >= nodeList.length - 1, j <= i, j >= nodeList.length
-
-Cut formula:
-(forall int k; j <= k & k < nodeList.length -> self.nodeList[k] = self.nodeList[k - (j - i)])
-
-Two branches. First branch, we assume the cut formula is true. Eliminate quantifier, allLeft, for (nodeList.length - 1). Apply impLeft. Two cases. First is bounds check, closes automatically. Second case: unfold invariant, propositional extension with split. Two cases: empty, non-empty. The empty case closes automatically. (** We reach contradiction. **) For self.last = nodeList[nodeList.length - 1], apply rules automatically, but rewrite the size back to length. We also rewrite with self.last.next = null. Instantiate quantifier (forall i nodeList[i].next = nodeList[i+1]) for term (nodeList.length - 1 - (j - i)). Apply impLeft: two cases, the first is bounds check which closes automatically. Instantiate quantifier (forall i, nodeList[i] != null) for term (nodeList.length - (j - i)). Apply impLeft: two cases, the first case is bounds check which closes automatically.
-
-We now have: nodeList[nodeList.length - (j - i)] != null, but also nodeList[nodeList.length - (j - i)] = null (from last.next = null). Narrow type the former, equational rewriting. Closing.
-
 \section{Unlinking}\label{sec:unlinking}
 \section{Loop invariants}\label{sec:loop-invariant}
 \section{Conclusion}\label{sec:conclusion}
