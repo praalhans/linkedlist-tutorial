@@ -1,0 +1,113 @@
+\section{The constructor}\label{sec:constructor}
+
+Select the constructor from the method selection screen.
+
+Strategy we use:
+max. rule applications 1000
+stop at: default
+proof splitting: delayed
+loop treatment: invariant
+block treatment: contract
+method treatment: contract
+dependency contract: on
+query treatment: off
+expand local queries: on
+arithmetic treatment: basic
+quantifier treatment: no splits with progs
+class axiom rule: off
+auto induction: off
+user-defined taclets: all off
+
+Right click on the proof tree root node, and select "Hide non-interactive proofsteps" and "Hide closed subtrees".
+
+Right click on open goal from the Proof window, select strategy macros, auto pilot, finish symbolic execution.
+
+Two branches remain: a normal execution (self != null), and a null reference (self = null). Right click on the proof tree, close provable goals below. Now one of the two branches is closed (the null reference branch). In the remaining goal, select the whole sequent, strategy macros, simplification, update simplification.
+
+In one of the consequents, we see a formula that is a conjunction of the post-condition of the constructor (that the node list is empty, \texttt{self.nodeList@heap[...] = seqEmpty}), the class invariant (\texttt{self.<inv>}), and that no exception occurred (\texttt{null = null}). Right click the formula and select strategy macros, propositional, propositional expansion (with splits). This generates three open goals, one for each conjunct.
+
+Right click the proof root, select strategy macros, close provable goals below. Only a single goal remains: that of the invariant.
+
+Click the invariant and select the Class invariant rule. The invariant is expanded into a large conjunction, that we specified as class invariant, but with the updated heap distributed in. Select the resulting conjunction, and perform propositional expansion with splits. This generates 23 goals. Now select a node in the proof tree above these and close provable goals. All of them are automatically closed.
+
+Nodes: 1195
+Branches: 29
+Interactive steps: 1
+
+Note that this method can also be proven correct fully automatically.
+
+\section{The \texttt{add} method}\label{sec:add}
+
+Open the proof manager (File, Proof Manager) and select checkSize. There are two contracts: we start with normal behavior.
+
+Select the open goal in the proof window, auto pilot, finish symbolic execution. It generates two goals: if x is true and if x is false. Here x is the condition whether the maximum size of the list has been reached.
+
+In the first branch, x is true, perform update simplification only on the whole sequent\footnote{Bug in key: must do on whole sequent}. There is now a conjunction in the consequent, and we do propositiobnal expansion with splits on it. The remaining goal can be closed automatically.
+
+In the second branch, x is false, also perform update simplification only on the whole sequent. There is a formula in the consequent with three conjuncts: the class invariant, that no exception is thrown, and that no heap modification has happened. Apply propositional expansion with split on the formula: it generates two goals, that can be closed automatically by selecting close provable goals.
+
+Nodes: 201
+Branches: 8
+Interactive steps: 0
+
+Note that this method can also be proven correct fully automatically.
+
+---
+
+Open proof manager (Ctrl+M), select checkSize and the exception behavior contract. Apply strategy (green arrow button), and see that it can be closed fully automatically.
+
+Nodes: 249
+Branches: 4
+Interactive steps: 0
+
+---
+
+Open proof manager, select linkLast and the normal behavior contract.
+
+Select the open goal, and finish symbolic execution. It generates 8 goals. Select the root node in the proof tree, closing provable goals below. Only two goals remain: if x true and if x false, this corresponds to whether the last field was null (x true) or not (x false).
+
+In the first branch, x is true, we do update simplification only on the whole sequent. We first hide a formula in the antecedent (\texttt{e = null | e.<created> = true}), because that might generate too many branches, while the information it contains is not needed in the rest of the proof. Right click that formula, and select hide\_left. Now select the whole sequent and select propositional expansion with split: it generates 4 goals. Select close provable goals above them in the proof tree. Only one goal remains: that is to establish the class invariant after the method. Use the class invariant rule on the formula in the consequent: it generates a large conjunction. Use propositional expansion with split on the resulting goal; it generates 23 goals. Select close provable goals above them in the proof tree: all of the 23 goals can be closed automatically.
+
+In the second branch, x is false, is the same recepi as in the first branch. However, this time, not all 23 goals can be closed automatically: we remain with two open goals. The two goals correspond to the two properties that establish the links between the nodes.
+
+In the first remaining open goal (it is a complex rendition of nodeList[i].prev = nodeList[i - 1]), we apply the allRight rule and the impRight rule. This adds the left-hand side of the implication to the antecent of the sequent. Click on the self.nodeList@heap[...] sub expression and select "Apply rules automatically here". It generates a number of (not very intelligable) goals; these can all be closed automatically.
+
+In the second remaining open goal (it is a complex rendition of nodeList[i].next = nodeList[i + 1]), is fully analogous as the previous remaining open goal. However, also this time, not all goals automatically close. We remain with one open goal: (** intuitive comment the proof situation is as follows. We assume that there is an index i, such that nodeList[i] = last. But also, we assume that index i < nodeList.length - 1. But we know from the invariant, that i = nodeList.length - 1 for the last node. From this, we derive the contradiction. **). We expand the class invariant; propositional expansion with split. The empty branch can close automatically. We now also have in the antecedent that nodeList[nodeList.length - 1] = last. From the invariant, by quantifier instantiation (rule allLeft), we know that nodeList[i].next = nodeList[i + 1]. We perform impLeft on the resulting formula, generating two goals. One closes automatically, because it is a simple bounds check. Now, technically, we compare the two formulas: nodeList[i] = last, and the one resulting from the quantifier instantation: (Node)(nodeList[i]).next. The latter has a superflous cast: we remove it by applying the castedGetAny rule. Now we can equationally rewrite, by applying the rule applyEq on the resultant subformula. We then obtain self.last.next = (Node)nodeList[i + 1]. But we also know self.last.next = null; so by showing that (Node)nodeList[i + 1] != null, we are done. But that (Node)nodeList[i + 1] != null follows from the class invariant: nodeList[i + 1] instanceof Node. We apply quantifier instantiation (rule allLeft) with the term i + 1. Again, we apply impLeft and close one goal which is a simple bounds check. From the remaining part, we split the conjunction and narrow type on the formula that expresses nodeList[i + 1] != null. We apply the rule notLeft, and the goal can be closed after symmetry of equality.
+
+Nodes: 10,279
+Branches: 127
+Interactive steps: 21
+
+---
+
+Open proof manager, select add, normal behavior.
+
+Select goal, and perform symbolic execution, and close provable goals. We have one remaining goal: it still contains a modality with a Java program fragment. We manually execute it by performing the rules: methodCallReturn, assignment, methodCallEmpty, tryEmpty, emptyModality. On the remaining whole sequent, apply update simplification only. Split the conjunction in the consequent: this generates 4 goals. We then close provable goals automatically, resulting in a complete proof.
+
+Nodes: 2,179
+Branches: 9
+Interactive steps: 5
+
+---
+
+Open proof manager, select add, exceptional behavior. Apply strategy (green arrow button), and see that it can be closed fully automatically.
+
+Nodes: 217
+Branches: 6
+Interactive steps: 0
+
+\section{Acyclicity}\label{sec:acyclicity}
+
+Open proof manager, select lemma\_acycliic. Finish symbolic execution. On the whole sequent, update simplification only. Propositional extension with split on consequent. Close provable goals on root. One remaining goal: the lemma we want to prove.
+
+Introduce quantifier (allRight). Propositional expansion without split. Introduce quantifier (allRight). Not right.
+
+Current goal:
+nodeList[j] = nodeList[i], ..., self.<inv> => i <= -1, i >= nodeList.length - 1, j <= i, j >= nodeList.length
+
+Cut formula:
+\texttt(forall int k; j <= k \& k < nodeList.length -> self.nodeList[k] = self.nodeList[k - (j - i)])
+
+Two branches. First branch, we assume the cut formula is true. Eliminate quantifier, allLeft, for (nodeList.length - 1). Apply impLeft. Two cases. First is bounds check, closes automatically. Second case: unfold invariant, propositional extension with split. Two cases: empty, non-empty. The empty case closes automatically. (** We reach contradiction. **) For self.last = nodeList[nodeList.length - 1], apply rules automatically, but rewrite the size back to length. We also rewrite with self.last.next = null. Instantiate quantifier (forall i nodeList[i].next = nodeList[i+1]) for term (nodeList.length - 1 - (j - i)). Apply impLeft: two cases, the first is bounds check which closes automatically. Instantiate quantifier (forall i, nodeList[i] != null) for term (nodeList.length - (j - i)). Apply impLeft: two cases, the first case is bounds check which closes automatically.
+
+We now have: nodeList[nodeList.length - (j - i)] != null, but also nodeList[nodeList.length - (j - i)] = null (from last.next = null). Narrow type the former, equational rewriting. Closing.
