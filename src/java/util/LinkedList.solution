@@ -135,16 +135,18 @@ public class LinkedList {
       @   ensures
       @     \result == false ==>
       @       (\forall \bigint i; 0 <= i < \old(nodeList.length);
-      @         \old(((Node)nodeList[i]).item) != null || !\old(o.equals(((Node)nodeList[i]).item)))
-      @       && nodeList == \old(nodeList);
+      @         (o == null ==> \old(((Node)nodeList[i]).item) != null) &&
+      @         (o != null ==> !\old(o.equals(((Node)nodeList[i]).item)))) &&
+      @         nodeList == \old(nodeList);
       @   ensures
       @     \result == true ==>
       @       (\exists \bigint j; 0 <= j < \old(nodeList.length);
       @         (\forall \bigint i; 0 <= i < j;
-      @           \old(((Node)nodeList[i]).item) != null || !\old(o.equals(((Node)nodeList[i]).item)))
-      @         &&   nodeList == \seq_concat(\old(nodeList)[0..j],
-      @           \old(nodeList)[j+1..\old(nodeList.length)]) &&
-      @         (\old(((Node)nodeList[j]).item) == null || \old(o.equals(((Node)nodeList[j]).item))));
+      @           (o == null ==> \old(((Node)nodeList[i]).item) != null) &&
+      @           (o != null ==> !\old(o.equals(((Node)nodeList[i]).item)))) &&
+      @         nodeList == \seq_concat(\old(nodeList)[0..j], \old(nodeList)[j+1..\old(nodeList.length)]) &&
+      @         ((o == null ==> \old(((Node)nodeList[j]).item) == null) &&
+      @          (o != null ==> \old(o.equals(((Node)nodeList[j]).item)))));
       @*/
     public boolean remove(/*@ nullable @*/ Object o) {
         //@ ghost \bigint index = -1;
