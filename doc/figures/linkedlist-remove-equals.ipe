@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70212" creator="Ipe 7.2.12">
-<info created="D:20200120132611" modified="D:20200122155232"/>
+<info created="D:20200120132611" modified="D:20200122180722"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -254,69 +254,115 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<use layer="alpha" matrix="1 0 0 1 16 0" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
-<use matrix="1 0 0 1 16 0" name="mark/disk(sx)" pos="208 768" size="normal" stroke="black"/>
-<path matrix="1 0 0 1 16 0" stroke="black" arrow="ptarc/normal">
+<use layer="alpha" matrix="1 0 0 1 16 -12" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 16 -12" name="mark/disk(sx)" pos="208 768" size="normal" stroke="black"/>
+<path matrix="1 0 0 1 16 -12" stroke="black" arrow="ptarc/normal">
 180 772 m
 192 784
 204 772 c
 </path>
-<path matrix="1 0 0 1 16 0" stroke="black" arrow="ptarc/normal">
+<path matrix="1 0 0 1 16 -12" stroke="black" arrow="ptarc/normal">
 204 764 m
 192 752
 180 764 c
 </path>
-<text matrix="1 0 0 1 20 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="16.279" height="4.902" depth="0" halign="center" valign="baseline" size="footnote">$\mathit{next}$</text>
-<text matrix="1 0 0 1 20 -32" transformations="translations" pos="188 784" stroke="black" type="label" width="16.271" height="3.431" depth="1.55" halign="center" valign="baseline" size="footnote" style="math">\mathit{prev}</text>
-<use matrix="1 0 0 1 -48 0" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
-<use matrix="1 0 0 1 -48 48" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
-<use matrix="1 0 0 1 32 48" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
-<text matrix="1 0 0 1 -4 -4" transformations="translations" pos="132 824" stroke="black" type="label" width="5.694" height="4.289" depth="0" halign="center" valign="baseline">$x$</text>
-<text matrix="1 0 0 1 12 -4" transformations="translations" pos="196 824" stroke="black" type="label" width="5.242" height="4.297" depth="1.93" halign="center" valign="baseline">$y$</text>
-<path stroke="black" arrow="ptarc/normal">
+<text matrix="1 0 0 1 20 -16" transformations="translations" pos="188 784" stroke="black" type="label" width="16.279" height="4.902" depth="0" halign="center" valign="baseline" size="footnote">$\mathit{next}$</text>
+<text matrix="1 0 0 1 20 -44" transformations="translations" pos="188 784" stroke="black" type="label" width="16.271" height="3.431" depth="1.55" halign="center" valign="baseline" size="footnote" style="math">\mathit{prev}</text>
+<use matrix="1 0 0 1 -48 -12" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 -48 36" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 32 36" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<text matrix="1 0 0 1 -4 -12" transformations="translations" pos="132 824" stroke="black" type="label" width="5.694" height="4.289" depth="0" halign="center" valign="baseline">$x$</text>
+<text matrix="1 0 0 1 12 -12" transformations="translations" pos="196 824" stroke="black" type="label" width="5.242" height="4.297" depth="1.93" halign="center" valign="baseline">$y$</text>
+<path matrix="1 0 0 1 0 -12" stroke="black" arrow="ptarc/normal">
 124 812 m
 112 792
 124 772 c
 </path>
-<path stroke="black" arrow="ptarc/normal">
+<path matrix="1 0 0 1 0 -12" stroke="black" arrow="ptarc/normal">
 132 812 m
 144 792
 132 772 c
 </path>
-<path matrix="1 0 0 1 16 0" stroke="black" arrow="ptarc/normal">
+<path matrix="1 0 0 1 16 -12" stroke="black" arrow="ptarc/normal">
 188 812 m
 176 792
 176 772 c
 </path>
-<path matrix="1 0 0 1 16 0" stroke="black" arrow="ptarc/normal">
+<path matrix="1 0 0 1 16 -12" stroke="black" arrow="ptarc/normal">
 196 812 m
 208 792
 208 772 c
 </path>
-<text matrix="1 0 0 1 -72 8" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
-<text matrix="1 0 0 1 4 8" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
-<text matrix="1 0 0 1 -48 8" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
-<text matrix="1 0 0 1 36 8" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
-<path stroke="black" arrow="ptarc/normal">
+<text matrix="1 0 0 1 -72 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
+<text matrix="1 0 0 1 4 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
+<text matrix="1 0 0 1 -48 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
+<text matrix="1 0 0 1 36 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
+<path matrix="1 0 0 1 0 -12" stroke="black" arrow="ptarc/normal">
 124 768 m
 80 768
 80 816
 124 816 c
 </path>
-<text matrix="1 0 0 1 -84 -16" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
-<path stroke="black" arrow="ptarc/normal">
+<text matrix="1 0 0 1 -84 -28" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<path matrix="1 0 0 1 0 -12" stroke="black" arrow="ptarc/normal">
 228 768 m
 256 768
 268 816
 212 816 c
 </path>
-<text matrix="1 0 0 1 56 -16" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" valign="baseline" size="footnote" style="math">\mathit{item}</text>
-<path stroke="black" arrow="ptarc/normal">
+<text matrix="1 0 0 1 56 -28" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<path matrix="1 0 0 1 0 -12" stroke="black" arrow="ptarc/normal">
 188 768 m
 144 768
 176 816
 132 816 c
 </path>
-<text matrix="1 0 0 1 -20 -16" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<text matrix="1 0 0 1 -20 -28" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<text matrix="1 0 0 1 4 0" transformations="translations" pos="60 780" stroke="black" type="label" width="17.818" height="6.812" depth="1.49" valign="baseline">$H_b:$</text>
+<text matrix="1 0 0 1 212 -4" transformations="translations" pos="60 780" stroke="black" type="label" width="18.636" height="6.812" depth="1.49" valign="baseline" style="math">H_a:</text>
+<use matrix="1 0 0 1 224 -12" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 160 -12" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 160 36" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<text matrix="1 0 0 1 204 -12" transformations="translations" pos="132 824" stroke="black" type="label" width="5.694" height="4.289" depth="0" halign="center" valign="baseline" style="math">x</text>
+<text matrix="1 0 0 1 204 -12" transformations="translations" pos="196 824" stroke="black" type="label" width="5.242" height="4.297" depth="1.93" halign="center" valign="baseline" style="math">y</text>
+<path matrix="1 0 0 1 208 -12" stroke="black" arrow="ptarc/normal">
+124 812 m
+112 792
+124 772 c
+</path>
+<path matrix="1 0 0 1 208 -12" stroke="black" arrow="ptarc/normal">
+132 812 m
+144 792
+132 772 c
+</path>
+<text matrix="1 0 0 1 136 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
+<text matrix="1 0 0 1 160 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
+<path matrix="1 0 0 1 208 -12" stroke="black" arrow="ptarc/normal">
+124 768 m
+80 768
+80 816
+124 816 c
+</path>
+<text matrix="1 0 0 1 124 -28" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<path matrix="1 0 0 1 208 -12" stroke="black" arrow="ptarc/normal">
+188 768 m
+144 768
+176 816
+132 816 c
+</path>
+<text matrix="1 0 0 1 188 -28" transformations="translations" pos="188 784" stroke="black" type="label" width="17.054" height="5.234" depth="0" halign="right" valign="baseline" size="footnote" style="math">\mathit{item}</text>
+<use matrix="1 0 0 1 224 36" name="mark/disk(sx)" pos="176 768" size="normal" stroke="black"/>
+<path matrix="1 0 0 1 272 -12" stroke="black" arrow="ptarc/normal">
+124 812 m
+112 792
+124 772 c
+</path>
+<path matrix="1 0 0 1 272 -12" stroke="black" arrow="ptarc/normal">
+132 812 m
+144 792
+132 772 c
+</path>
+<text matrix="1 0 0 1 200 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
+<text matrix="1 0 0 1 224 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
 </page>
 </ipe>
