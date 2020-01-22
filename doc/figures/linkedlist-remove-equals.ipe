@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70212" creator="Ipe 7.2.12">
-<info created="D:20200120132611" modified="D:20200122180722"/>
+<info created="D:20200120132611" modified="D:20200122181344"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -364,5 +364,10 @@ h
 </path>
 <text matrix="1 0 0 1 200 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="15.506" height="5.535" depth="1.55" halign="right" valign="baseline" size="footnote" style="math">\mathit{first}</text>
 <text matrix="1 0 0 1 224 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="13.647" height="5.535" depth="0" valign="baseline" size="footnote" style="math">\mathit{last}</text>
+<text matrix="1 0 0 1 4 -4" transformations="translations" pos="124 748" stroke="black" type="label" width="10.449" height="4.294" depth="1.49" halign="center" valign="baseline">$n_1$</text>
+<text matrix="1 0 0 1 60 -4" transformations="translations" pos="124 748" stroke="black" type="label" width="10.449" height="4.294" depth="1.49" halign="center" valign="baseline">$n_2$</text>
+<text matrix="1 0 0 1 108 -4" transformations="translations" pos="124 748" stroke="black" type="label" width="10.449" height="4.294" depth="1.49" halign="center" valign="baseline" style="math">n_3</text>
+<text matrix="1 0 0 1 212 -4" transformations="translations" pos="124 748" stroke="black" type="label" width="10.449" height="4.294" depth="1.49" halign="center" valign="baseline" style="math">n_1</text>
+<text matrix="1 0 0 1 276 -4" transformations="translations" pos="124 748" stroke="black" type="label" width="10.449" height="4.294" depth="1.49" halign="center" valign="baseline" style="math">n_2</text>
 </page>
 </ipe>
