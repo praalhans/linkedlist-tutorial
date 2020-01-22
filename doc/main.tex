@@ -51,7 +51,7 @@ Frank S. de Boer \and Stijn de Gouw}
 \maketitle
 
 \begin{abstract}
-This is a tutorial paper on using KeY to demonstrate formal verification of state-of-the-art, real software. In sufficient detail for a beginning user of JML and KeY, the specification and verification of part of a corrected version of the \texttt{java.util.LinkedList} class of the Java Collection framework is explained. The paper includes video material that shows recordings of interactive sessions \citeSelf{Bian2020addbranch,Bian2020lemma}, and project files with solutions \citeSelf{10.5281/zenodo.3613712}. As such, it is also interesting for the expert user and developer of KeY, as a `benchmark' for improving the specification language, user interaction, and (automatic) proof strategies.
+This is a tutorial paper on using KeY to demonstrate formal verification of state-of-the-art, real software. In sufficient detail for a beginning user of JML and KeY, the specification and verification of part of a corrected version of the \texttt{java.util.LinkedList} class of the Java Collection framework is explained. The paper includes video material that shows recordings of interactive sessions \citeSelf{Bian2020collection}, and project files with solutions \citeSelf{10.5281/zenodo.3613712}. As such, it is also interesting for the expert user and the developer of KeY, as a `benchmark' that could lead to improvement of the specification language, user interaction, and (automatic) proof strategies.
 \end{abstract}
 
 \keywords{KeY, Java Modeling Language, cyclic data structure, case study}
@@ -172,21 +172,21 @@ The taclet options become effective after loading the next problem. We do that n
 
 In this section we walk through part of the source code of Java's linked list: see the \texttt{LinkedList.java} file. Over the course of this tutorial, we add annotations at the appropriate places. We finally obtain the \texttt{LinkedList.solution} file.
 
-\lstinputlisting[linerange=1-10,caption={The \texttt{LinkedList} class fields and constructor (begin of file).},captionpos=b,label={lst:linkedlist}]{src/java/util/LinkedList.java}
+\lstinputlisting[linerange=1-10,caption={The \texttt{LinkedList} class fields and constructor (begin of file).},captionpos=b,label={lst:linkedlist}]{figures/LinkedList.java}
 
 Our \texttt{LinkedList} class has three attributes and a constructor (Listing~\ref{lst:linkedlist}). A \texttt{size} field, which stores a cached number of elements in the list, and two fields that store a reference to the first and last \texttt{Node}. The public constructor contains no statements: thus it initializes size to zero, and first and last to \texttt{null}.
 
 The linked list fields are declared transient and package private. The transient flag is not relevant to our verification effort. The reason the fields are declared package private seems to prevent generating accessor methods by the Java compiler. However, in practice, the fields are treated as if they were private.
 
-\lstinputlisting[firstnumber=65,linerange=65-77,caption={The \texttt{Node} nested class fields and constructor (end of file).},captionpos=b,label={lst:linkedlist-node}]{src/java/util/LinkedList.java}
+\lstinputlisting[firstnumber=65,linerange=65-77,caption={The \texttt{Node} nested class fields and constructor (end of file).},captionpos=b,label={lst:linkedlist-node}]{figures/LinkedList.java}
 
 The \texttt{Node} class is defined as a private static nested class to represent the containers of items stored in the list (Listing~\ref{lst:linkedlist-node}). A static nested private class behaves like a top-level class, except that it is not visible outside the enclosing class. The nodes are doubly-linked, that is, each node is connected to its preceding node (through field \texttt{prev}) and succeeding node (through field \texttt{next}). These fields contain \texttt{null} in case no preceding or succeeding node exists. The data itself is contained in the \texttt{item} field of a node.
 
-\lstinputlisting[firstnumber=39,linerange=39-43,caption={The method \texttt{add}.},captionpos=b,label={lst:linkedlist-add}]{src/java/util/LinkedList.java}
+\lstinputlisting[firstnumber=39,linerange=39-43,caption={The method \texttt{add}.},captionpos=b,label={lst:linkedlist-add}]{figures/LinkedList.java}
 
 The method \texttt{add} for adding elements to the list, takes one argument, the item to add (Listing~\ref{lst:linkedlist-add}). The informal Java documentation for \texttt{Collection} specifies it always returns \texttt{true}. The implementation immediately calls \texttt{linkLast}.
 
-\lstinputlisting[firstnumber=45,linerange=45-63,caption={The method \texttt{remove}.},captionpos=b,label={lst:linkedlist-remove}]{src/java/util/LinkedList.java}
+\lstinputlisting[firstnumber=45,linerange=45-63,caption={The method \texttt{remove}.},captionpos=b,label={lst:linkedlist-remove}]{figures/LinkedList.java}
 
 The method \texttt{remove} for removing elements, also takes one argument, the item to remove (Listing~\ref{lst:linkedlist-remove}). If that item was present in the list, then its first occurrence is removed and \texttt{true} is returned; otherwise, if the item was not present, then the list is not changed and \texttt{false} is returned.
 
@@ -194,11 +194,11 @@ Presence of the item depends on whether the argument of the remove method is \te
 
 Observe that the linked list is not modified if \texttt{unlink} is not called. Although not immediately obvious, this requires that the \texttt{equals} method of every object cannot modify our current linked list, for the duration of the call to \texttt{remove}. When the \texttt{remove} method is called with an item that is not contained in the list, either loop eventually exits, and \texttt{false} is returned.
 
-\lstinputlisting[firstnumber=11,linerange=11-18,caption={The internal method \texttt{linkLast}.},captionpos=b,label={lst:linkedlist-linkLast}]{src/java/util/LinkedList.java}
+\lstinputlisting[firstnumber=11,linerange=11-18,caption={The internal method \texttt{linkLast}.},captionpos=b,label={lst:linkedlist-linkLast}]{figures/LinkedList.java}
 
 The internal method \texttt{linkLast} changes the structure of the linked list (Listing~\ref{lst:linkedlist-linkLast}). After performing this method, a new node has been created, and the \texttt{last} field of the linked list now points to it. To maintain structural integrity, also other fields change: if the linked list were empty, the \texttt{first} field now points to the new, and only, node. If the linked list was not empty, then the new last node is also reachable via the former last node's \texttt{next} field. It is always the case that all items of a linked list are reachable through the \texttt{first} field, then following the \texttt{next} fields, and also for the opposite direction.
 
-\lstinputlisting[firstnumber=20,linerange=20-37,caption={The internal method \texttt{unlink}.},captionpos=b,label={lst:linkedlist-unlink}]{src/java/util/LinkedList.java}
+\lstinputlisting[firstnumber=20,linerange=20-37,caption={The internal method \texttt{unlink}.},captionpos=b,label={lst:linkedlist-unlink}]{figures/LinkedList.java}
 
 The internal method \texttt{unlink} is among the most complex methods that alters the structure of a linked list (Listing~\ref{lst:linkedlist-unlink}). The method is used only when the linked list is not empty. Its argument is a node, necessarily one that belongs to the linked list. We first store the fields of the node in local variables: the old item, and next and previous node references.
 
@@ -391,25 +391,45 @@ An immediate difficulty in specifying the \texttt{remove} method contract is tha
 
 We declare the equality method to be strictly pure, which implies that it must be a side-effect free and terminating method (see \cite[Section 7.3.5]{KeYbook}). Each strictly pure method is also directly accessible as an observer symbol (a function symbol) that can be used in specifications (see \cite[Section 8.1.2]{KeYbook}). However, no obvious relation between the possibly overridden equality method and its observer symbol is present. The intention of the contract given in Listing~\ref{lst:object-equals} is to relate the outcome of the method call of \texttt{equals} to the observer symbol $\mathit{equals}$, and this furthermore requires that the implementation is deterministic.
 
-It is not clear what ramifications adding this assumption has. We note that there are Java classes for which equality is not terminating under certain circumstances. Even \texttt{LinkedList} itself does not have a terminating equality, where two linked lists that contain each other may lead to a \texttt{StackOverflowError} when testing their equality. However, this example is described and forbidden in the Javadoc of the linked list, and we can thus expect this not to occur often in practice. Another approach is to specify the outcome of equality as referential equality only, e.g. see \cite[Section 4.4]{huisman2002verification}.
+It is not clear what ramifications adding this assumption has. We note that there are Java classes for which equality is not terminating under certain circumstances. Even \texttt{LinkedList} itself does not have a terminating equality, where two linked lists that contain each other may lead to a \texttt{StackOverflowError} when testing their equality. This example is described in the Javadoc \cite{javadoc8collection} of the linked list: ``Some collection operations which perform recursive traversal of the collection may fail with an exception for self-referential instances where the collection directly or indirectly contains itself.'' Another approach is to specify the outcome of equality as referential equality only, e.g. see \cite[Section 4.4]{huisman2002verification}.
 
-Now we can specify the behavior of remove. It can be seen as consisting of two cases: either its result is \texttt{true} and it has indeed removed an item from the list, or its result is \texttt{false} and the argument was not found and thus not removed. In the first case, the number of elements in the linked list remain unchanged. In the second case, the number of elements decrease by one. See Listing~\ref{lst:remove-method}.
-
-It is important to note that we make use of JML's \texttt{\bs old} operator to refer to the equality observer symbol in the old heap. Using equality in the new heap is a different observation; and it should not be possible to verify the remove method in this case. To see why, consider two linked list instances $x$ and $y$: we add $x$ to itself, and to $y$ we add $x$ and then $y$. Now we perform the \texttt{remove} operation on $y$ with $y$ as argument. Clearly $x$ and $y$ are not equal, because they have a different length. But the second item is $y$ itself, and $y$ equals $y$. In the resulting heap, both $x$ and $y$ contain $x$ as only item: thus, $x$ and $y$ are equal. If we would have used equality in the new heap, then the post-condition that the argument and the item at the first position are not equal is not true.
+Now we can specify the behavior of remove. It can be seen as consisting of two cases: either its result is \texttt{true} and it has removed the first item equal to its argument from the list, or its result is \texttt{false} and the argument was not found and thus not removed. In the first case, the number of elements in the linked list remain unchanged. In the second case, the number of elements decrease by one. See Listing~\ref{lst:remove-method}.
 
 \lstinputlisting[numbers=none,caption={The \texttt{remove} method contract expressed in JML.},captionpos=b,label={lst:remove-method}]{figures/remove_method.java}
 
-Before we can verify the \texttt{remove} method, we must specify and verify its deeper method: \texttt{unlink}. Within the method of unlink we have to update the chain ghost variable as well, so we add a set annotation to the method body. Additionally, we will make use of the lemma \texttt{lemma\_acyclic} by calling it as a first statement of the method. This method call is also not present in the original definition for \texttt{unlink}, but we already argued that it does not affect behavior.
+It is important to note that we make use of JML's \texttt{\bs old} operator to refer to the equality observer symbol in the old heap. Using equality in the new heap is a different observation; and it should not be possible to verify the remove method in this case. To see why, consider two linked list instances $x$ and $y$: we add $x$ to itself, and to $y$ we add $x$ and then $y$. Now we perform the \texttt{remove} operation on $y$ with $y$ as argument. Clearly $x$ and $y$ are not equal, because they have a different length. But the second item is $y$ itself, and $y$ equals $y$, so it is removed: see Fig.~\ref{fig:remove-equals}. In the resulting heap, both $x$ and $y$ contain $x$ as only item: thus, $x$ and $y$ are equal. If we wrongly observe equality in the new heap, then the implementation would be incorrect: the item to remove should not be the second but the first!
 
-An interesting aspect of the specification of \texttt{unlink} is its use of a \emph{ghost parameter}. Although KeY does not directly support ghost parameters, we are able to work arround this aspect by adding the parameter as a ghost field to the linked list class; its value is left undefined for the most part of the lifetime of the linked list, until we are about to invoke \texttt{unlink}. In particular, the ghost parameter contains the index of the node argument, thereby requiring that the node object passed in is part of the chain.
+\begin{figure}
+   \centering
+   \includegraphics[scale=0.4]{figures/linkedlist-remove-equals.eps}
+   \caption{The situation before \texttt{remove} is invoked on $y$ with as argument $y$. The result of this operation is that its second node is unlinked, hence the first node becomes the last node and its next pointer is cleared: now $x$ and $y$ are equal because they have the same length, and they have the same item, namely $x$.}
+   \vspace*{-12pt}
+   \label{fig:remove-equals}
+\end{figure}
+
+Before we can verify the \texttt{remove} method, we must specify and verify its deeper method: \texttt{unlink}. Within the method of unlink we have to update the chain ghost variable as well, so we add a set annotation to the method body. Additionally, we will make use of the lemma \texttt{lemma\_acyclic} by calling it as a first statement of the method. See Listing~\ref{lst:unlink-method}. This method call is also not present in the original definition for \texttt{unlink}, but we already argued that it does not affect behavior.
 
 \lstinputlisting[numbers=none,caption={The first part of method \texttt{unlink} and its method contract. Note that the @set annotation must not contain a new line, but kept on a single line: otherwise KeY cannot load the source file.},captionpos=b,label={lst:unlink-method}]{figures/unlink_method.java}
+
+An interesting aspect of the specification of \texttt{unlink} is its use of a \emph{ghost parameter}. Although KeY does not directly support ghost parameters, we are able to work around by adding the parameter as a ghost field to our class:
+$$\mathrm{//@\ private\ ghost\ \bs bigint\ nodeIndex;}$$
+Its value is left undefined for the most part of the lifetime of the linked list, until we are about to invoke \texttt{unlink}. In particular, the ghost parameter contains the index of the node argument, thereby requiring that the node object passed in is part of the chain.
+
+
 
 (TODO: unlink verification: four cases, plus intuitive picture, video upload)
 
 (TODO: loop invariants: two cases, video upload)
 
 \section{Conclusion}\label{sec:conclusion}
+
+\begin{exercise}
+Change the specifications of the methods to relate the items in the `before heap' to the items in the `after heap'. For example, for the \texttt{add} method, items originally present in the list should still be present at the same place after the method returns. Verify the correctness with respect to this contract.
+\end{exercise}
+
+\begin{exercise}
+Write a specification and verify the correctness of these linked list methods: \texttt{linkFirst}, \texttt{linkBefore}, \texttt{node}, \texttt{indexOf}, \texttt{clear}.
+\end{exercise}
 
 (TODO: exercises)
 
