@@ -373,7 +373,7 @@ The properties \ref{item:prev}, that fixes \texttt{prev} fields to point to the 
 
 \begin{figure}
    \centering
-   \includegraphics[scale=0.4]{figures/linkedlist-linklast.eps}
+   \includegraphics[scale=0.425]{figures/linkedlist-linklast.eps}
    \caption{The heap before ($H_b$) consists of an arbitrary chain of nodes. In the heap after ($H_a$) the dashed lines show which objects are identical to the heap before. The old last node at $\sigma[\ell(\sigma)-1]$ has a different value for its $\mathit{next}$ field in the heap after: this must be the result of a heap update. The new last node does not occur in the heap before: this must be the result of creating a new node.}
    \vspace*{-6pt}
    \label{fig:linklast}
@@ -401,8 +401,8 @@ It is important to note that we make use of JML's \texttt{\bs old} operator to r
 
 \begin{figure}
    \centering
-   \includegraphics[scale=0.4]{figures/linkedlist-remove-equals.eps}
-   \caption{The situation before \texttt{remove} is invoked on $y$ with as argument $y$. The result of this operation is that its second node is unlinked, hence the first node becomes the last node and its next pointer is cleared: now $x$ and $y$ are equal because they have the same length, and they have the same item, namely $x$.}
+   \includegraphics[scale=0.5]{figures/linkedlist-remove-equals.eps}
+   \caption{The situation ($H_b$) before \texttt{remove} is invoked on $y$ with argument $y$, and after ($H_a$). The result of this operation is that $y$'s second node is unlinked, hence the first node becomes the last node and its next pointer is cleared: now $x$ and $y$ are equal because they have the same length, and they have the same item, namely $x$.}
    \vspace*{-12pt}
    \label{fig:remove-equals}
 \end{figure}
