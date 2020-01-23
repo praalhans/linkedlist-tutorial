@@ -379,7 +379,7 @@ The properties \ref{item:prev}, that fixes \texttt{prev} fields to point to the 
    \label{fig:linklast}
 \end{figure}
 
-Finally, we can verify the \texttt{add} method: see \citeSelf[6:58--8:08]{Bian2020addbranch} for the normal behavior case, and \citeSelf[8:09--]{Bian2020addbranch} for the exceptional behavior case.
+Finally, we can verify the \texttt{add} method: see \citeSelf[6:58]{Bian2020addbranch} for the normal behavior case, and \citeSelf[8:09]{Bian2020addbranch} for the exceptional behavior case.
 
 \section{The \texttt{remove} method}\label{sec:remove}
 
@@ -401,21 +401,31 @@ It is important to note that we make use of JML's \texttt{\bs old} operator to r
 
 \begin{figure}
    \centering
-   \includegraphics[scale=0.5]{figures/linkedlist-remove-equals.eps}
-   \caption{The situation ($H_b$) before \texttt{remove} is invoked on $y$ with argument $y$, and after ($H_a$). The result of this operation is that $y$'s second node is unlinked, hence the first node becomes the last node and its next pointer is cleared: now $x$ and $y$ are equal because they have the same length, and they have the same item, namely $x$.}
+   \includegraphics[width=\textwidth]{figures/linkedlist-remove-equals.eps}
+   \caption{The situation ($H_b$) before \texttt{remove} is invoked on $y$ with argument $y$, and after ($H_a$). The result of this operation is that $y$'s second node $n_3$ is unlinked, hence the first node $n_2$ becomes the last node and its next pointer is cleared: now $x$ and $y$ are equal because they have the same length, and they have the same item, namely $x$.}
    \vspace*{-12pt}
    \label{fig:remove-equals}
 \end{figure}
 
-Before we can verify the \texttt{remove} method, we must specify and verify its deeper method: \texttt{unlink}. Within the method of unlink we have to update the chain ghost variable as well, so we add a set annotation to the method body. Additionally, we will make use of the lemma \texttt{lemma\_acyclic} by calling it as a first statement of the method. See Listing~\ref{lst:unlink-method}. This method call is also not present in the original definition for \texttt{unlink}, but we already argued that it does not affect behavior.
+Before we can verify the \texttt{remove} method, we must specify and verify its deeper method: \texttt{unlink}. Within the method of unlink we have to update the chain ghost field as well, to remove a node from the sequence, so we add a set annotation to the method body. Additionally, we will make use of the lemma \texttt{lemma\_acyclic} by calling it as a first statement of the method. See Listing~\ref{lst:unlink-method}. This method call is also not present in the original definition for \texttt{unlink}, but we already argued that it does not affect behavior.
 
 \lstinputlisting[numbers=none,caption={The first part of method \texttt{unlink} and its method contract. Note that the @set annotation must not contain a new line, but kept on a single line: otherwise KeY cannot load the source file.},captionpos=b,label={lst:unlink-method}]{figures/unlink_method.java}
 
 An interesting aspect of the specification of \texttt{unlink} is its use of a \emph{ghost parameter}. Although KeY does not directly support ghost parameters, we are able to work around by adding the parameter as a ghost field to our class:
 $$\mathrm{//@\ private\ ghost\ \bs bigint\ nodeIndex;}$$
-Its value is left undefined for the most part of the lifetime of the linked list, until we are about to invoke \texttt{unlink}. In particular, the ghost parameter contains the index of the node argument, thereby requiring that the node object passed in is part of the chain.
+Its value is left undefined for the most part of the lifetime of the linked list, until we are about to invoke \texttt{unlink}. In particular, the ghost parameter contains the index of the node argument, thereby requiring that the node object passed in is part of the chain. In the following discussion, let $I$ be the node index ghost parameter and $\sigma$ the chain of the linked list: then $\sigma[I]$ is assumed to be the node argument of the method \texttt{unlink}.
 
+The verification of the unlink method is not fully automatic, see the five videos \citeSelf{Bian2020unlink1truetrue,Bian2020unlink2truefalse,Bian2020unlink3falsetrue,Bian2020unlink4falsefalseprev,Bian2020unlink5falsefalsenext}.
 
+\begin{proof}
+\begin{enumerate}
+    Verifying unlink consists of four main cases: these correspond to the possible branches of the two if-statements (see Listing~\ref{lst:linkedlist-unlink}). The challenge again is to reestablish the class invariant in the heap after the method completes. The main insight is that, by the acyclicity property, all the nodes are separate: this allows us to distinguish the heap updates to apply only to the node that is actually affected, while leaving the other nodes equal to the situation in the heap before. The three important cases are depicted in Fig.~ (compare this with Fig.~\ref{fig:linklast}).
+
+    \item Suppose the test of both if-statements evaluate to true: for node $x$, it holds that $\mathrm{next}(x)=\mathtt{null}$ and $\mathrm{prev}(x)=\mathtt{null}$. Then we know the list consists of exactly one node, as the node we are unlinking is the first and the last node. So $I$ cannot be larger than 0. If the node index is zero, the class invariant is proven automatically \citeSelf[7:25]{Bian2020unlink1truetrue}.
+    
+    \item Suppose the test of the first if-statement evaluates to true, but the test of the second if-statement evaluates to false: for node $x$, it holds that $\mathrm{next}(x)\neq\mathtt{null}$ and $\mathrm{prev}(x)=\mathtt{null}$. We thus know that the list consists of at least two nodes, and it is the first node we are unlinking. Thus, $I$ cannot be larger than 0. If the node index is zero, the class invariant is not proven automatically \citeSelf[2:40]{Bian2020unlink2truefalse}, but we have two open goals corresponding to the chain properties \ref{item:prev}, that fixes \texttt{prev} fields to point to the previous node in the sequence, and \ref{item:next}, that fixes \texttt{next} fields to point to the next node in the sequence.
+\end{enumerate}
+\end{proof}
 
 (TODO: unlink verification: four cases, plus intuitive picture, video upload)
 
@@ -424,11 +434,15 @@ Its value is left undefined for the most part of the lifetime of the linked list
 \section{Conclusion}\label{sec:conclusion}
 
 \begin{exercise}
+The proofs shown in the video material are not the smallest and contain detours: find proofs that are smaller in the number of rule applications.
+\end{exercise}
+
+\begin{exercise}
 Change the specifications of the methods to relate the items in the `before heap' to the items in the `after heap'. For example, for the \texttt{add} method, items originally present in the list should still be present at the same place after the method returns. Verify the correctness with respect to this contract.
 \end{exercise}
 
 \begin{exercise}
-Write a specification and verify the correctness of these linked list methods: \texttt{linkFirst}, \texttt{linkBefore}, \texttt{node}, \texttt{indexOf}, \texttt{clear}.
+Write a specification and verify the correctness for these linked list methods: \texttt{linkFirst}, \texttt{linkBefore}, \texttt{node}, \texttt{indexOf}, \texttt{clear}.
 \end{exercise}
 
 (TODO: exercises)
