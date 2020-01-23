@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70212" creator="Ipe 7.2.12">
-<info created="D:20200120132611" modified="D:20200123141829"/>
+<info created="D:20200120132611" modified="D:20200123143200"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -327,8 +327,8 @@ h
 <text matrix="1 0 0 1 188 -4" transformations="translations" pos="188 784" stroke="black" type="label" width="16.279" height="4.902" depth="0" halign="center" valign="baseline" size="footnote" style="math">\mathit{next}</text>
 <text matrix="1 0 0 1 188 -32" transformations="translations" pos="188 784" stroke="black" type="label" width="16.271" height="3.431" depth="1.55" halign="center" valign="baseline" size="footnote" style="math">\mathit{prev}</text>
 <text matrix="1 0 0 1 224 -48" transformations="translations" pos="172 816" stroke="black" type="label" width="46.693" height="7.473" depth="2.49" valign="baseline" style="math">\sigma[\ell(\sigma)-1]</text>
-<text matrix="1 0 0 1 112 -80" transformations="translations" pos="172 816" stroke="black" type="label" width="16.746" height="7.473" depth="2.49" halign="center" valign="center" style="math">\sigma[I]</text>
-<path matrix="1 0 0 1 107.336 -0.0948619" stroke="black">
+<text matrix="1 0 0 1 112 -72" transformations="translations" pos="172 816" stroke="black" type="label" width="16.746" height="7.473" depth="2.49" halign="center" valign="center" style="math">\sigma[I]</text>
+<path matrix="1 0 0 0.598094 107.336 306.962" stroke="black">
 176 744 m
 176 764 l
 </path>
@@ -426,15 +426,7 @@ h
 316 768 m
 284 704 l
 </path>
-<path matrix="1 0 0 1 108.775 -0.0948619" stroke="black">
-176 744 m
-176 764 l
-</path>
-<path matrix="1 0 0 1 107.336 -36.0949" stroke="black">
-176 744 m
-176 764 l
-</path>
-<path matrix="1 0 0 1 108.775 -36.0949" stroke="black">
+<path matrix="1 0 0 0.598094 108.775 306.962" stroke="black">
 176 744 m
 176 764 l
 </path>
